@@ -97,7 +97,7 @@ const Dashboard: React.FC = () => {
     // Ping every 5 minutes to keep the connection alive
     const pingInterval = setInterval(() => {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({ action: 'ping' }));
+        ws.current.send(JSON.stringify({ action: 'ping', message: 'ping' }));
       }
     }, 5 * 60 * 1000);
 
