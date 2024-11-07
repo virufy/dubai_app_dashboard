@@ -1,0 +1,51 @@
+import styled from 'styled-components';
+
+export const DashboardContainer = styled.div`
+  width: 90vw; /* 90% of the viewport width */
+  height: 90vh; /* 90% of the viewport height */
+  margin: auto;
+  padding: 20px;
+  border: 4px solid black; /* 4px black border */
+  border-radius: 12px;
+  background-color: #ffffff; /* White background for the Dashboard container */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
+export const HeatmapContainer = styled.div`
+  display: flex;
+  gap: 20px;
+  height: 70%;
+`;
+
+export const HeatmapCard = styled.div`
+  width: 45vw; 
+  height: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+`;
+
+export const BottomCardsContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  height: 25%;
+`;
+
+export const BottomCard = styled.div`
+  flex: 1;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  background-color: #fff;
+  text-align: center;
+`;
+
+export const MapContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+`;
