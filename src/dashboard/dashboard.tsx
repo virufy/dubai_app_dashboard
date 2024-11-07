@@ -70,8 +70,9 @@ const Dashboard: React.FC = () => {
       }
     };    
 
-    ws.current.onclose = () => {
+    ws.current.onclose = (event) => {
       console.log('WebSocket connection closed unexpectedly');
+      console.log(`Code: ${event.code}, Reason: ${event.reason}`);
 
       // Retry logic with exponential backoff
       if (retryStartTime.current === null) {
