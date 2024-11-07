@@ -39,6 +39,8 @@ const Dashboard: React.FC = () => {
       console.log('WebSocket connection opened');
       reconnectAttempts.current = 0;
       retryStartTime.current = null;
+
+      ws.current?.send(JSON.stringify({ action: 'send_initial_data' }));
     };
 
     ws.current.onmessage = (event) => {
