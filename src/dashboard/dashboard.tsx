@@ -42,26 +42,33 @@ const Dashboard: React.FC = () => {
     };
 
     ws.current.onmessage = (event) => {
-      const data: HealthDataEntry = JSON.parse(event.data);
-
-      // Filter symptoms and update heatmap data for 'cold' and 'covid'
-      const hasCovid = data.Symptoms.some((symptom) => symptom.S === 'covid');
-      const hasCold = data.Symptoms.some((symptom) => symptom.S === 'cold');
-
-      if (hasCovid) {
-        setCovidData((prevData) => [
-          ...prevData,
-          { lat: data.latitude, lng: data.longitude, intensity: 100 },
-        ]);
+      const data = JSON.parse(event.data);
+    
+      if (data.message === 'pong' || data.message === 'Received') {
+        console.log('Ping response from server:', data.message);
+      } else {
+        // Handle health data updates
+        const healthData = data as HealthDataEntry;
+    
+        // Filter symptoms and update heatmap data for 'cold' and 'covid'
+        const hasCovid = healthData.Symptoms.some((symptom) => symptom.S === 'covid');
+        const hasCold = healthData.Symptoms.some((symptom) => symptom.S === 'cold');
+    
+        if (hasCovid) {
+          setCovidData((prevData) => [
+            ...prevData,
+            { lat: healthData.latitude, lng: healthData.longitude, intensity: 100 },
+          ]);
+        }
+    
+        if (hasCold) {
+          setColdData((prevData) => [
+            ...prevData,
+            { lat: healthData.latitude, lng: healthData.longitude, intensity: 100 },
+          ]);
+        }
       }
-
-      if (hasCold) {
-        setColdData((prevData) => [
-          ...prevData,
-          { lat: data.latitude, lng: data.longitude, intensity: 100 },
-        ]);
-      }
-    };
+    };    
 
     ws.current.onclose = () => {
       console.log('WebSocket connection closed unexpectedly');
