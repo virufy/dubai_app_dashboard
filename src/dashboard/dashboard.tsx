@@ -160,7 +160,7 @@ const Dashboard: React.FC = () => {
                 selectedSymptomsLeft.includes("All") ||
                 selectedSymptomsLeft.some((symptom) => entry.Symptoms.includes(symptom))
               )
-              .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 1 }))
+              .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 10 }))
             }
           />
         </HeatmapCard>
@@ -182,7 +182,7 @@ const Dashboard: React.FC = () => {
                 selectedSymptomsRight.includes("All") ||
                 selectedSymptomsRight.some((symptom) => entry.Symptoms.includes(symptom))
               )
-              .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 1 }))
+              .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 10 }))
             }
             />
         </HeatmapCard>
