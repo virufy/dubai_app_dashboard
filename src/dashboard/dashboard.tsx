@@ -8,11 +8,11 @@ import {
   BottomCard,
 } from './DashboardStyles';
 
-type HeatmapPoint = {
-  lat: number;
-  lng: number;
-  intensity: number;
-};
+// type HeatmapPoint = {
+//   lat: number;
+//   lng: number;
+//   intensity: number;
+// };
 
 interface HealthDataEntry {
   AgeGroup: string;            // Example: "Adult"
@@ -20,12 +20,14 @@ interface HealthDataEntry {
   latitude: number;            // Example: 37.7749
   Sex: string;                 // Example: "Male" or "Female"
   DistanceMetric: number;      // Example: 12.34 (in km or miles, as appropriate)
-  Symptoms: string[];   // Example: [{ "S": "cold" }, { "S": "covid" }, ...]
+  Symptoms: string[];          // Example: [{ "S": "cold" }, { "S": "covid" }, ...]
 }
+const symptoms = ['All', 'influenza', 'covid', 'cold', 'pneumonia', 'bronchitis', 'tuberculosis', 'emphysema', 'asthma'];
 
 const Dashboard: React.FC = () => {
-  const [covidData, setCovidData] = useState<HeatmapPoint[]>([]);
-  const [coldData, setColdData] = useState<HeatmapPoint[]>([]);
+  const [healthData, setHealthData] = useState<HealthDataEntry[]>([]);
+  const [selectedSymptomsLeft, setSelectedSymptomsLeft] = useState<string[]>(['covid']);
+  const [selectedSymptomsRight, setSelectedSymptomsRight] = useState<string[]>(['cold']);
   const [dataCount, setdataCount] = useState(0);
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
@@ -54,23 +56,25 @@ const Dashboard: React.FC = () => {
         // Handle health data updates
         const healthData = data as HealthDataEntry;
         console.log(healthData);
-        // Filter symptoms and update heatmap data for 'cold' and 'covid'
-        const hasCovid = healthData.Symptoms.includes('covid');
-        const hasCold = healthData.Symptoms.includes('cold');
-        console.log(hasCovid, hasCold);
-        if (hasCovid) {
-          setCovidData((prevData) => [
-            ...prevData,
-            { lat: healthData.latitude, lng: healthData.longitude, intensity: 100 },
-          ]);
-        }
+        setHealthData((prevData) => [...prevData, healthData]);
+
+        // // Filter symptoms and update heatmap data for 'cold' and 'covid'
+        // const hasCovid = healthData.Symptoms.includes('covid');
+        // const hasCold = healthData.Symptoms.includes('cold');
+        // console.log(hasCovid, hasCold);
+        // if (hasCovid) {
+        //   setCovidData((prevData) => [
+        //     ...prevData,
+        //     { lat: healthData.latitude, lng: healthData.longitude, intensity: 50 },
+        //   ]);
+        // }
     
-        if (hasCold) {
-          setColdData((prevData) => [
-            ...prevData,
-            { lat: healthData.latitude, lng: healthData.longitude, intensity: 100 },
-          ]);
-        }
+        // if (hasCold) {
+        //   setColdData((prevData) => [
+        //     ...prevData,
+        //     { lat: healthData.latitude, lng: healthData.longitude, intensity: 50 },
+        //   ]);
+        // }
       }
     };    
 
@@ -120,18 +124,66 @@ const Dashboard: React.FC = () => {
   }, [connectWebSocket]);
 
   useEffect(() => {
-    console.log('Number of Data:', covidData.length);
-    setdataCount(covidData.length);
-  },[covidData]);
+    console.log('Number of Data:', healthData.length);
+    setdataCount(healthData.length);
+  },[healthData]);
+
+  const handleLeftSymptomChange = useCallback((e) => {
+    const options = Array.from(e.target.selectedOptions, (option) => option.value);
+    setSelectedSymptomsLeft(options);
+  }, []);
+  
+  const handleRightSymptomChange = useCallback((e) => {
+    const options = Array.from(e.target.selectedOptions, (option) => option.value);
+    setSelectedSymptomsRight(options);
+  }, []);
 
   return (
     <DashboardContainer>
       <HeatmapContainer>
         <HeatmapCard>
-          <MapComponent lat={25.2048} lon={55.2708} zoom={10} points={covidData} />
+          <div>
+            <label>Select Symptoms:</label>
+            <select multiple value={selectedSymptomsLeft} onChange={handleLeftSymptomChange}>
+              {symptoms.map((symptom) => (
+                <option key={symptom} value={symptom}>{symptom}</option>
+              ))}
+            </select>
+          </div>
+          <MapComponent
+            lat={25.2048}
+            lon={55.2708}
+            zoom={10}
+            points={healthData
+              .filter((entry) =>
+                selectedSymptomsLeft.includes("All") ||
+                selectedSymptomsLeft.some((symptom) => entry.Symptoms.includes(symptom))
+              )
+              .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 50 }))
+            }
+          />
         </HeatmapCard>
         <HeatmapCard>
-          <MapComponent lat={25.2048} lon={55.2708} zoom={10} points={ coldData } />
+          <div>
+            <label>Select Symptoms:</label>
+            <select multiple value={selectedSymptomsRight} onChange={handleRightSymptomChange}>
+              {symptoms.map((symptom) => (
+                <option key={symptom} value={symptom}>{symptom}</option>
+              ))}
+            </select>
+          </div>
+          <MapComponent
+            lat={25.2048}
+            lon={55.2708}
+            zoom={10}
+            points={healthData
+              .filter((entry) =>
+                selectedSymptomsRight.includes("All") ||
+                selectedSymptomsRight.some((symptom) => entry.Symptoms.includes(symptom))
+              )
+              .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 50 }))
+            }
+            />
         </HeatmapCard>
       </HeatmapContainer>
       <BottomCardsContainer>

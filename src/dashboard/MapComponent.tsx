@@ -4,7 +4,6 @@ import L from 'leaflet';
 import 'leaflet.heat';
 import { MapContainer } from './DashboardStyles';
 
-
 interface MapProps {
   lat: number;
   lon: number;
@@ -12,9 +11,10 @@ interface MapProps {
   points: Array<{ lat: number; lng: number; intensity: number }>;
 }
 
-const MapComponent: React.FC<MapProps> = ({ lat, lon, zoom, points }) => {
+const MapComponent: React.FC<MapProps> = React.memo(({ lat, lon, zoom, points }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const heatLayerRef = useRef<L.HeatLayer | null>(null);
 
   useEffect(() => {
     if (mapContainerRef.current && !mapRef.current) {
@@ -29,43 +29,42 @@ const MapComponent: React.FC<MapProps> = ({ lat, lon, zoom, points }) => {
         attribution: '© OpenStreetMap contributors',
       }).addTo(mapRef.current);
     }
+  }, [lat, lon, zoom]);
 
-    // Only add the heat layer when the map is fully initialized
-    mapRef.current?.whenReady(() => {
-      if (mapRef.current) {
-        // Clear existing heat layer if it exists
-        mapRef.current.eachLayer((layer) => {
-          if (layer instanceof L.heatLayer) {
-            mapRef.current?.removeLayer(layer);
-          }
-        });
-
-        // Add heat layer with the provided points
-        const heatLayer = L.heatLayer(
-          points.map((point) => [point.lat, point.lng, point.intensity]),
-          {
-            radius: 50,
-            blur: 15,
-            maxZoom: 15,
-            gradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' },
-          }
-        );
-
-        heatLayer.addTo(mapRef.current);
+  useEffect(() => {
+    if (mapRef.current) {
+      // Remove existing heat layer if it exists
+      if (heatLayerRef.current) {
+        mapRef.current.removeLayer(heatLayerRef.current);
       }
-    });
 
+      // Create a new heat layer with updated points and add it to the map
+      heatLayerRef.current = L.heatLayer(
+        points.map((point) => [point.lat, point.lng, point.intensity]),
+        {
+          radius: 50,
+          blur: 15,
+          maxZoom: 15,
+          gradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' },
+        }
+      );
+
+      heatLayerRef.current.addTo(mapRef.current);
+    }
+  }, [points]); // Re-run this effect only when `points` changes
+
+  // Clean up map and heat layer on unmount
+  useEffect(() => {
     return () => {
-      // Clean up map on unmount
       if (mapRef.current) {
         mapRef.current.off();
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, [lat, lon, zoom, points]);
+  }, []);
 
   return <MapContainer ref={mapContainerRef} />;
-};
+});
 
 export default MapComponent;
