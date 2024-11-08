@@ -42,7 +42,7 @@ const MapComponent: React.FC<MapProps> = React.memo(({ lat, lon, zoom, points })
       heatLayerRef.current = L.heatLayer(
         points.map((point) => [point.lat, point.lng, point.intensity]),
         {
-          radius: 50,
+          radius: 30,
           blur: 15,
           maxZoom: 15,
           gradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' },
