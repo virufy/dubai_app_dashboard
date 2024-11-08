@@ -20,7 +20,7 @@ interface HealthDataEntry {
   latitude: number;            // Example: 37.7749
   Sex: string;                 // Example: "Male" or "Female"
   DistanceMetric: number;      // Example: 12.34 (in km or miles, as appropriate)
-  Symptoms: { S: string }[];   // Example: [{ "S": "cold" }, { "S": "covid" }, ...]
+  Symptoms: string[];   // Example: [{ "S": "cold" }, { "S": "covid" }, ...]
 }
 
 const Dashboard: React.FC = () => {
@@ -53,11 +53,11 @@ const Dashboard: React.FC = () => {
       } else {
         // Handle health data updates
         const healthData = data as HealthDataEntry;
-    
+        console.log(healthData);
         // Filter symptoms and update heatmap data for 'cold' and 'covid'
-        const hasCovid = healthData.Symptoms.some((symptom) => symptom.S === 'covid');
-        const hasCold = healthData.Symptoms.some((symptom) => symptom.S === 'cold');
-    
+        const hasCovid = healthData.Symptoms.includes('covid');
+        const hasCold = healthData.Symptoms.includes('cold');
+        console.log(hasCovid, hasCold);
         if (hasCovid) {
           setCovidData((prevData) => [
             ...prevData,
