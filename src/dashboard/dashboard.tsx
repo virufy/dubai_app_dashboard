@@ -44,6 +44,7 @@ const Dashboard: React.FC = () => {
     };
 
     ws.current.onmessage = (event) => {
+      console.log("Message from Backend:", event);
       const data = JSON.parse(event.data);
     
       if (data.message === 'pong' || data.message === 'Received') {
