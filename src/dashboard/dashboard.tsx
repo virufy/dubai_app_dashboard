@@ -22,7 +22,7 @@ interface HealthDataEntry {
   DistanceMetric: number;      // Example: 12.34 (in km or miles, as appropriate)
   Symptoms: string[];          // Example: [{ "S": "cold" }, { "S": "covid" }, ...]
 }
-const symptoms = ['All', 'influenza', 'covid', 'cold', 'pneumonia', 'bronchitis', 'tuberculosis', 'emphysema', 'asthma'];
+const symptoms = ['All', 'influenzaA', 'covid', 'cold', 'pneumonia', 'bronchitis', 'tuberculosis', 'copdEmphysema', 'asthma'];
 
 const Dashboard: React.FC = () => {
   const [healthData, setHealthData] = useState<HealthDataEntry[]>([]);
@@ -128,15 +128,16 @@ const Dashboard: React.FC = () => {
     setdataCount(healthData.length);
   },[healthData]);
 
-  const handleLeftSymptomChange = useCallback((e) => {
+  const handleLeftSymptomChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const options = Array.from(e.target.selectedOptions, (option) => option.value);
     setSelectedSymptomsLeft(options);
   }, []);
   
-  const handleRightSymptomChange = useCallback((e) => {
+  const handleRightSymptomChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const options = Array.from(e.target.selectedOptions, (option) => option.value);
     setSelectedSymptomsRight(options);
   }, []);
+  
 
   return (
     <DashboardContainer>
@@ -159,7 +160,7 @@ const Dashboard: React.FC = () => {
                 selectedSymptomsLeft.includes("All") ||
                 selectedSymptomsLeft.some((symptom) => entry.Symptoms.includes(symptom))
               )
-              .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 50 }))
+              .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 1 }))
             }
           />
         </HeatmapCard>
@@ -181,7 +182,7 @@ const Dashboard: React.FC = () => {
                 selectedSymptomsRight.includes("All") ||
                 selectedSymptomsRight.some((symptom) => entry.Symptoms.includes(symptom))
               )
-              .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 50 }))
+              .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 1 }))
             }
             />
         </HeatmapCard>
