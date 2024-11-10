@@ -1,4 +1,15 @@
 import styled from 'styled-components';
+import virufyLogo from '../virufyLogo.png';
+
+export const VirufyLogoPNG = styled.img.attrs({
+  src: virufyLogo
+})`
+  display: block;
+  margin: 0px auto 30px; /* Center horizontally and add spacing below */
+  min-height:80px;
+  height: 6vh;
+  padding-top: 20px; /* Add padding above the logo */
+`;
 
 export const DashboardContainer = styled.div`
   width: 90vw; /* 90% of the viewport width */

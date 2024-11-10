@@ -6,6 +6,7 @@ import {
   HeatmapCard,
   BottomCardsContainer,
   BottomCard,
+  VirufyLogoPNG,
 } from './DashboardStyles';
 
 // type HeatmapPoint = {
@@ -141,6 +142,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <DashboardContainer>
+      <VirufyLogoPNG/>
       <HeatmapContainer>
         <HeatmapCard>
           <div>
