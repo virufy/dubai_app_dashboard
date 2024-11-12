@@ -67,7 +67,7 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
     console.log("Processing entry:", entry); // Debugging
     const isSick = entry.Symptoms && !entry.Symptoms.includes('none');
     
-    if (entry.Sex === 'Male') {
+    if (entry.Sex === 'male') {
       if (isSick) {
         sickMale++;
         console.log("Sick Male Count:", sickMale); // Debugging
@@ -75,7 +75,7 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
         nonSickMale++;
         console.log("Non-Sick Male Count:", nonSickMale); // Debugging
       }
-    } else if (entry.Sex === 'Female') {
+    } else if (entry.Sex === 'female') {
       if (isSick) {
         sickFemale++;
         console.log("Sick Female Count:", sickFemale); // Debugging
