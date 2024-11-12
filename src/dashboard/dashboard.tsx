@@ -8,6 +8,7 @@ import {
   BottomCard,
   VirufyLogoPNG,
 } from './DashboardStyles';
+import SicknessStatsChart from './SicknessStatsChart';
 
 // type HeatmapPoint = {
 //   lat: number;
@@ -21,7 +22,7 @@ interface HealthDataEntry {
   latitude: number;            // Example: 37.7749
   Sex: string;                 // Example: "Male" or "Female"
   DistanceMetric: number;      // Example: 12.34 (in km or miles, as appropriate)
-  Symptoms: string[];          // Example: [{ "S": "cold" }, { "S": "covid" }, ...]
+  Symptoms: string[];          // Example: ["cold", "covid", ...]
 }
 const symptoms = ['All', 'influenzaA', 'covid', 'cold', 'pneumonia', 'bronchitis', 'tuberculosis', 'copdEmphysema', 'asthma'];
 
@@ -33,6 +34,21 @@ const Dashboard: React.FC = () => {
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
   const retryStartTime = useRef<number | null>(null);
+
+  // Aggregate data for age and gender
+  const ageCounts = healthData.reduce((acc, entry) => {
+    acc[entry.AgeGroup] = (acc[entry.AgeGroup] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const genderCounts = healthData.reduce((acc, entry) => {
+    acc[entry.Sex] = (acc[entry.Sex] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Transform data into arrays compatible with Recharts
+  const ageData = Object.entries(ageCounts).map(([label, value]) => ({ label, value }));
+  const genderData = Object.entries(genderCounts).map(([label, value]) => ({ label, value }));
 
   const connectWebSocket = useCallback(() => {
     const websocketURL = process.env.REACT_APP_WEBSOCKET_URL || '';
@@ -191,8 +207,14 @@ const Dashboard: React.FC = () => {
       </HeatmapContainer>
       <BottomCardsContainer>
         <BottomCard>Number of data: {dataCount}</BottomCard>
-        <BottomCard>Placeholder for gender stats</BottomCard>
-        <BottomCard>Hello World</BottomCard>
+        <BottomCard>
+          <SicknessStatsChart data={ageData} type="bar" />
+        </BottomCard>
+        <BottomCard>
+          <SicknessStatsChart data={genderData} type="pie" />
+        </BottomCard>
+        {/* <BottomCard>Placeholder for gender stats</BottomCard>
+        <BottomCard>Hello World</BottomCard> */}
       </BottomCardsContainer>
     </DashboardContainer>
   );
