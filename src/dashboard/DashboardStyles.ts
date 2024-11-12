@@ -16,7 +16,7 @@ export const DashboardContainer = styled.div`
   height: 95vh; /* 90% of the viewport height */
   margin: auto;
   padding: 20px;
-  border: 4px solid black; /* 4px black border */
+  // border: 4px solid black; /* 4px black border */
   border-radius: 12px;
   background-color: #ffffff; /* White background for the Dashboard container */
   display: flex;

@@ -64,7 +64,6 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
   let sickMale = 0, sickFemale = 0, nonSickMale = 0, nonSickFemale = 0;
 
   healthData.forEach((entry) => {
-    console.log("Processing entry:", entry); // Debugging
     const isSick = entry.Symptoms && !entry.Symptoms.includes('none');
     
     if (entry.Sex === 'male') {
@@ -99,7 +98,7 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
     { name: 'Sick Female', value: (sickFemale / total) * 100 },
     { name: 'Non-Sick Male', value: (nonSickMale / total) * 100 },
     { name: 'Non-Sick Female', value: (nonSickFemale / total) * 100 },
-  ];
+  ].filter((entry) => entry.value > 0); 
 };
 
 
@@ -326,7 +325,7 @@ const Dashboard: React.FC = () => {
           </ResponsiveContainer>
         </BottomCard>
         <BottomCard>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={genderSicknessData}
@@ -336,7 +335,7 @@ const Dashboard: React.FC = () => {
                   cy="50%"
                   outerRadius={100}
                   fill="#8884d8"
-                  label={({ name, percent }) => `${name}: ${(percent).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name}: ${(100*percent).toFixed(0)}%`}
                 >
                   {genderSicknessData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
