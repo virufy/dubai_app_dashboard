@@ -96,7 +96,7 @@ const Dashboard: React.FC = () => {
 
   const sicknessData = processSicknessData(healthData);
   const genderSicknessData = processGenderSicknessData(healthData);
-  console.log(genderSicknessData); // Debugging: Check if data is processed correctly
+  console.log("gender data:",genderSicknessData); // Debugging: Check if data is processed correctly
 
   const COLORS = ['#FF6B6B', '#4ECDC4', '#1A535C', '#FFE66D']; // Colors for each category
 
@@ -188,9 +188,10 @@ const Dashboard: React.FC = () => {
   }, [connectWebSocket]);
 
   useEffect(() => {
+    console.log("gender data:",genderSicknessData); // Debugging: Check if data is processed correctly
     console.log('Number of Data:', healthData.length);
     setdataCount(healthData.length);
-  },[healthData]);
+  },[healthData, genderSicknessData]);
 
   // const handleLeftSymptomChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
   //   const options = Array.from(e.target.selectedOptions, (option) => option.value);
@@ -307,7 +308,7 @@ const Dashboard: React.FC = () => {
           </ResponsiveContainer>
         </BottomCard>
         <BottomCard>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={genderSicknessData}
