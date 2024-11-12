@@ -64,15 +64,32 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
   let sickMale = 0, sickFemale = 0, nonSickMale = 0, nonSickFemale = 0;
 
   healthData.forEach((entry) => {
+    console.log("Processing entry:", entry); // Debugging
     const isSick = entry.Symptoms && !entry.Symptoms.includes('none');
+    
     if (entry.Sex === 'Male') {
-      isSick ? sickMale++ : nonSickMale++;
+      if (isSick) {
+        sickMale++;
+        console.log("Sick Male Count:", sickMale); // Debugging
+      } else {
+        nonSickMale++;
+        console.log("Non-Sick Male Count:", nonSickMale); // Debugging
+      }
     } else if (entry.Sex === 'Female') {
-      isSick ? sickFemale++ : nonSickFemale++;
+      if (isSick) {
+        sickFemale++;
+        console.log("Sick Female Count:", sickFemale); // Debugging
+      } else {
+        nonSickFemale++;
+        console.log("Non-Sick Female Count:", nonSickFemale); // Debugging
+      }
     }
   });
 
   const total = sickMale + sickFemale + nonSickMale + nonSickFemale;
+
+  // Log total counts for verification
+  console.log("Total Counts:", { sickMale, sickFemale, nonSickMale, nonSickFemale, total });
 
   // If there is no data, return an empty array to prevent errors
   if (total === 0) return [];
@@ -84,6 +101,7 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
     { name: 'Non-Sick Female', value: (nonSickFemale / total) * 100 },
   ];
 };
+
 
 const Dashboard: React.FC = () => {
   const [healthData, setHealthData] = useState<HealthDataEntry[]>([]);
