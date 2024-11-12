@@ -74,6 +74,9 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
 
   const total = sickMale + sickFemale + nonSickMale + nonSickFemale;
 
+  // If there is no data, return an empty array to prevent errors
+  if (total === 0) return [];
+
   return [
     { name: 'Sick Male', value: (sickMale / total) * 100 },
     { name: 'Sick Female', value: (sickFemale / total) * 100 },
@@ -93,6 +96,7 @@ const Dashboard: React.FC = () => {
 
   const sicknessData = processSicknessData(healthData);
   const genderSicknessData = processGenderSicknessData(healthData);
+  console.log(genderSicknessData); // Debugging: Check if data is processed correctly
 
   const COLORS = ['#FF6B6B', '#4ECDC4', '#1A535C', '#FFE66D']; // Colors for each category
 
@@ -313,7 +317,7 @@ const Dashboard: React.FC = () => {
                   cy="50%"
                   outerRadius={100}
                   fill="#8884d8"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name}: ${(percent).toFixed(0)}%`}
                 >
                   {genderSicknessData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
