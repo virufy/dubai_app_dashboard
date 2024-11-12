@@ -6,15 +6,13 @@ import {
   HeatmapCard,
   BottomCardsContainer,
   BottomCard,
-  VirufyLogoPNG,
+  VirufyLogoPNG,  
+  SelectionContainer,
+  SelectDropdown, DropdownOption 
 } from './DashboardStyles';
-import SicknessStatsChart from './SicknessStatsChart';
-
-// type HeatmapPoint = {
-//   lat: number;
-//   lng: number;
-//   intensity: number;
-// };
+// import SicknessStatsChart from './SicknessStatsChart';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell } from 'recharts';
 
 interface HealthDataEntry {
   AgeGroup: string;            // Example: "Adult"
@@ -24,31 +22,94 @@ interface HealthDataEntry {
   DistanceMetric: number;      // Example: 12.34 (in km or miles, as appropriate)
   Symptoms: string[];          // Example: ["cold", "covid", ...]
 }
-const symptoms = ['All', 'influenzaA', 'covid', 'cold', 'pneumonia', 'bronchitis', 'tuberculosis', 'copdEmphysema', 'asthma'];
+const symptoms = ['All', 'heavysmoker', 'cold', 'influenza', 'covid', 'sars', 'rsv'];
+
+const ageGroupLabels = ['<20', '30-40', '50-60', '60-80', '80+'];
+
+const categorizeAgeGroup = (age: number): string => {
+  if (age < 20) return '<20';
+  if (age >= 30 && age < 40) return '30-40';
+  if (age >= 50 && age < 60) return '50-60';
+  if (age >= 60 && age < 80) return '60-80';
+  return '80+';
+};
+
+const processSicknessData = (healthData: HealthDataEntry[]) => {
+  const ageGroupCounts = ageGroupLabels.reduce((acc, label) => {
+    acc[label] = { sick: 0, notSick: 0 };
+    return acc;
+  }, {} as Record<string, { sick: number; notSick: number }>);
+
+  healthData.forEach((entry) => {
+    const ageGroup = categorizeAgeGroup(parseInt(entry.AgeGroup, 10));
+    const isSick = entry.Symptoms && !entry.Symptoms.includes('none');
+    
+    if (ageGroupCounts[ageGroup]) {
+      if (isSick) {
+        ageGroupCounts[ageGroup].sick += 1;
+      } else {
+        ageGroupCounts[ageGroup].notSick += 1;
+      }
+    }
+  });
+
+  return Object.entries(ageGroupCounts).map(([label, counts]) => ({
+    ageGroup: label,
+    Sick: counts.sick,
+    NotSick: counts.notSick,
+  }));
+};
+
+const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
+  let sickMale = 0, sickFemale = 0, nonSickMale = 0, nonSickFemale = 0;
+
+  healthData.forEach((entry) => {
+    const isSick = entry.Symptoms && !entry.Symptoms.includes('none');
+    if (entry.Sex === 'Male') {
+      isSick ? sickMale++ : nonSickMale++;
+    } else if (entry.Sex === 'Female') {
+      isSick ? sickFemale++ : nonSickFemale++;
+    }
+  });
+
+  const total = sickMale + sickFemale + nonSickMale + nonSickFemale;
+
+  return [
+    { name: 'Sick Male', value: (sickMale / total) * 100 },
+    { name: 'Sick Female', value: (sickFemale / total) * 100 },
+    { name: 'Non-Sick Male', value: (nonSickMale / total) * 100 },
+    { name: 'Non-Sick Female', value: (nonSickFemale / total) * 100 },
+  ];
+};
 
 const Dashboard: React.FC = () => {
   const [healthData, setHealthData] = useState<HealthDataEntry[]>([]);
-  const [selectedSymptomsLeft, setSelectedSymptomsLeft] = useState<string[]>(['covid']);
-  const [selectedSymptomsRight, setSelectedSymptomsRight] = useState<string[]>(['cold']);
+  const [selectedSymptomsLeft, setSelectedSymptomsLeft] = useState<string>('covid');
+  const [selectedSymptomsRight, setSelectedSymptomsRight] = useState<string>('cold');
   const [dataCount, setdataCount] = useState(0);
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
   const retryStartTime = useRef<number | null>(null);
 
-  // Aggregate data for age and gender
-  const ageCounts = healthData.reduce((acc, entry) => {
-    acc[entry.AgeGroup] = (acc[entry.AgeGroup] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const sicknessData = processSicknessData(healthData);
+  const genderSicknessData = processGenderSicknessData(healthData);
 
-  const genderCounts = healthData.reduce((acc, entry) => {
-    acc[entry.Sex] = (acc[entry.Sex] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const COLORS = ['#FF6B6B', '#4ECDC4', '#1A535C', '#FFE66D']; // Colors for each category
+
+  // Aggregate data for age and gender
+  // const ageCounts = healthData.reduce((acc, entry) => {
+  //   acc[entry.AgeGroup] = (acc[entry.AgeGroup] || 0) + 1;
+  //   return acc;
+  // }, {} as Record<string, number>);
+
+  // const genderCounts = healthData.reduce((acc, entry) => {
+  //   acc[entry.Sex] = (acc[entry.Sex] || 0) + 1;
+  //   return acc;
+  // }, {} as Record<string, number>);
 
   // Transform data into arrays compatible with Recharts
-  const ageData = Object.entries(ageCounts).map(([label, value]) => ({ label, value }));
-  const genderData = Object.entries(genderCounts).map(([label, value]) => ({ label, value }));
+  // const ageData = Object.entries(ageCounts).map(([label, value]) => ({ label, value }));
+  // const genderData = Object.entries(genderCounts).map(([label, value]) => ({ label, value }));
 
   const connectWebSocket = useCallback(() => {
     const websocketURL = process.env.REACT_APP_WEBSOCKET_URL || '';
@@ -74,24 +135,6 @@ const Dashboard: React.FC = () => {
         const healthData = data as HealthDataEntry;
         console.log(healthData);
         setHealthData((prevData) => [...prevData, healthData]);
-
-        // // Filter symptoms and update heatmap data for 'cold' and 'covid'
-        // const hasCovid = healthData.Symptoms.includes('covid');
-        // const hasCold = healthData.Symptoms.includes('cold');
-        // console.log(hasCovid, hasCold);
-        // if (hasCovid) {
-        //   setCovidData((prevData) => [
-        //     ...prevData,
-        //     { lat: healthData.latitude, lng: healthData.longitude, intensity: 50 },
-        //   ]);
-        // }
-    
-        // if (hasCold) {
-        //   setColdData((prevData) => [
-        //     ...prevData,
-        //     { lat: healthData.latitude, lng: healthData.longitude, intensity: 50 },
-        //   ]);
-        // }
       }
     };    
 
@@ -145,76 +188,142 @@ const Dashboard: React.FC = () => {
     setdataCount(healthData.length);
   },[healthData]);
 
-  const handleLeftSymptomChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const options = Array.from(e.target.selectedOptions, (option) => option.value);
-    setSelectedSymptomsLeft(options);
-  }, []);
+  // const handleLeftSymptomChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const options = Array.from(e.target.selectedOptions, (option) => option.value);
+  //   setSelectedSymptomsLeft(options);
+  // }, []);
   
-  const handleRightSymptomChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const options = Array.from(e.target.selectedOptions, (option) => option.value);
-    setSelectedSymptomsRight(options);
+  // const handleRightSymptomChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const options = Array.from(e.target.selectedOptions, (option) => option.value);
+  //   setSelectedSymptomsRight(options);
+  // }, []);
+
+  const handleSymptomSelectLeft = useCallback((symptom: string) => {
+    setSelectedSymptomsLeft(symptom); // Single-select
+    // setSelectedSymptomsLeft((prev) =>
+    //   prev.includes(symptom) ? prev.filter((s) => s !== symptom) : [...prev, symptom]
+    // );
   }, []);
-  
+
+  const handleSymptomSelectRight = useCallback((symptom: string) => {
+    setSelectedSymptomsRight(symptom); // Single-select
+    // setSelectedSymptomsRight((prev) =>
+    //   prev.includes(symptom) ? prev.filter((s) => s !== symptom) : [...prev, symptom]
+    // );
+  }, []);
 
   return (
     <DashboardContainer>
       <VirufyLogoPNG/>
       <HeatmapContainer>
         <HeatmapCard>
-          <div>
-            <label>Select Symptoms:</label>
-            <select multiple value={selectedSymptomsLeft} onChange={handleLeftSymptomChange}>
-              {symptoms.map((symptom) => (
-                <option key={symptom} value={symptom}>{symptom}</option>
-              ))}
-            </select>
-          </div>
           <MapComponent
             lat={25.2048}
             lon={55.2708}
             zoom={10}
             points={healthData
               .filter((entry) =>
-                selectedSymptomsLeft.includes("All") ||
-                selectedSymptomsLeft.some((symptom) => entry.Symptoms.includes(symptom))
+                selectedSymptomsLeft === "All" ||
+                entry.Symptoms.includes(selectedSymptomsLeft)
               )
               .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 10 }))
             }
           />
+          <SelectionContainer>
+            <label style={{fontSize:'14px', marginBottom:'10px'}}>Select Symptoms:</label>
+            <SelectDropdown>
+              {symptoms.map((symptom) => (
+                <DropdownOption
+                  key={symptom}
+                  onClick={() => handleSymptomSelectLeft(symptom)}
+                  style={{
+                    fontWeight: selectedSymptomsLeft.includes(symptom) ? 'bold' : 'normal',
+                    color: selectedSymptomsLeft.includes(symptom) ? '#007bff' : 'black',
+                  }}
+                >
+                  {symptom}
+                </DropdownOption>
+              ))}
+            </SelectDropdown>
+          </SelectionContainer>
         </HeatmapCard>
         <HeatmapCard>
-          <div>
+          {/* <div>
             <label>Select Symptoms:</label>
             <select multiple value={selectedSymptomsRight} onChange={handleRightSymptomChange}>
               {symptoms.map((symptom) => (
                 <option key={symptom} value={symptom}>{symptom}</option>
               ))}
             </select>
-          </div>
+          </div> */}
           <MapComponent
             lat={25.2048}
             lon={55.2708}
             zoom={10}
             points={healthData
               .filter((entry) =>
-                selectedSymptomsRight.includes("All") ||
-                selectedSymptomsRight.some((symptom) => entry.Symptoms.includes(symptom))
+                selectedSymptomsRight === "All" ||
+                entry.Symptoms.includes(selectedSymptomsRight)
               )
               .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 10 }))
             }
             />
+          <SelectionContainer>
+            <label style={{fontSize:'14px', marginBottom:'10px'}}>Select Symptoms:</label>
+            <SelectDropdown>
+              {symptoms.map((symptom) => (
+                <DropdownOption
+                  key={symptom}
+                  onClick={() => handleSymptomSelectRight(symptom)}
+                  style={{
+                    fontWeight: selectedSymptomsRight.includes(symptom) ? 'bold' : 'normal',
+                    color: selectedSymptomsRight.includes(symptom) ? '#007bff' : 'black',
+                  }}
+                >
+                  {symptom}
+                </DropdownOption>
+              ))}
+            </SelectDropdown>
+          </SelectionContainer>
         </HeatmapCard>
       </HeatmapContainer>
       <BottomCardsContainer>
         <BottomCard>Number of data: {dataCount}</BottomCard>
         <BottomCard>
-          <SicknessStatsChart data={ageData} type="bar" />
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={sicknessData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="ageGroup" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Sick" fill="#FF6B6B" />
+              <Bar dataKey="NotSick" fill="#4ECDC4" />
+            </BarChart>
+          </ResponsiveContainer>
         </BottomCard>
         <BottomCard>
-          <SicknessStatsChart data={genderData} type="pie" />
+          <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={genderSicknessData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  fill="#8884d8"
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                >
+                  {genderSicknessData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
         </BottomCard>
-        {/* <BottomCard>Placeholder for gender stats</BottomCard>
-        <BottomCard>Hello World</BottomCard> */}
       </BottomCardsContainer>
     </DashboardContainer>
   );
