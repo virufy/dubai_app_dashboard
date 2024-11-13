@@ -325,7 +325,7 @@ const Dashboard: React.FC = () => {
           </ResponsiveContainer>
         </BottomCard>
         <BottomCard>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="90%" height="90%">
               <PieChart>
                 <Pie
                   data={genderSicknessData}
