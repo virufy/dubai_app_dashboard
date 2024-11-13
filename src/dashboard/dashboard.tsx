@@ -317,7 +317,7 @@ const Dashboard: React.FC = () => {
           </ResponsiveContainer>
         </BottomCard>
         <BottomCard>
-          <ResponsiveContainer width="100%" height="90%">
+          <ResponsiveContainer width="100%" height="100%">
               <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                 <Pie
                   data={genderSicknessData}
@@ -325,7 +325,7 @@ const Dashboard: React.FC = () => {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius="80%"
+                  outerRadius="70%"
                   fill="#8884d8"
                   label={({ name, percent }) => `${name}: ${(100*percent).toFixed(0)}%`}
                 >
