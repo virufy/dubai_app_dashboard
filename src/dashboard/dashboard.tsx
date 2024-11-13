@@ -333,7 +333,7 @@ const Dashboard: React.FC = () => {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={100}
+                  // outerRadius={100}
                   fill="#8884d8"
                   label={({ name, percent }) => `${name}: ${(100*percent).toFixed(0)}%`}
                 >
