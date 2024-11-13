@@ -49,6 +49,7 @@ export const BottomCardsContainer = styled.div`
 
 export const BottomCard = styled.div`
   flex: 1;
+  padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 12px;
   background-color: #fff;

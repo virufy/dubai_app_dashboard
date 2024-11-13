@@ -270,14 +270,6 @@ const Dashboard: React.FC = () => {
           </SelectionContainer>
         </HeatmapCard>
         <HeatmapCard>
-          {/* <div>
-            <label>Select Symptoms:</label>
-            <select multiple value={selectedSymptomsRight} onChange={handleRightSymptomChange}>
-              {symptoms.map((symptom) => (
-                <option key={symptom} value={symptom}>{symptom}</option>
-              ))}
-            </select>
-          </div> */}
           <MapComponent
             lat={25.2048}
             lon={55.2708}
@@ -325,15 +317,15 @@ const Dashboard: React.FC = () => {
           </ResponsiveContainer>
         </BottomCard>
         <BottomCard>
-          <ResponsiveContainer width="90%" height="90%">
-              <PieChart>
+          <ResponsiveContainer width="100%" height="90%">
+              <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                 <Pie
                   data={genderSicknessData}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  // outerRadius={100}
+                  outerRadius="80%"
                   fill="#8884d8"
                   label={({ name, percent }) => `${name}: ${(100*percent).toFixed(0)}%`}
                 >
