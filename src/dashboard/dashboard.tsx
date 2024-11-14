@@ -22,9 +22,29 @@ interface HealthDataEntry {
   DistanceMetric: number;      // Example: 12.34 (in km or miles, as appropriate)
   Symptoms: string[];          // Example: ["cold", "covid", ...]
 }
-const symptoms = ['All', 'heavysmoker', 'cold', 'influenza', 'covid', 'sars', 'rsv'];
+
+type SymptomKey = 'All' | 'heavysmoker' | 'cold' | 'influenza' | 'covid' | 'sars' | 'rsv';
+
+// Define symptoms with the specific type
+const symptoms: Record<SymptomKey, string> = {
+  All: 'All',
+  heavysmoker: 'Heavy Smoker',
+  cold: 'Cold',
+  influenza: 'Influenza',
+  covid: 'Covid',
+  sars: 'SARS',
+  rsv: 'RSV',
+};
+
+// Extract keys for internal use
+const symptomKeys = Object.keys(symptoms) as SymptomKey[];
 
 const ageGroupLabels = ['<20', '30-40', '50-60', '60-80', '80+'];
+
+const testAge = [{ name: 'Sick Male', value: 0.25 * 100 },
+{ name: 'Non-Sick Male', value: 0.20 * 100 },
+{ name: 'Sick Female', value: 0.50 * 100 },
+{ name: 'Non-Sick Female', value: 0.05 * 100 }]
 
 const categorizeAgeGroup = (age: number): string => {
   if (age < 20) return '<20';
@@ -69,34 +89,27 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
     if (entry.Sex === 'male') {
       if (isSick) {
         sickMale++;
-        console.log("Sick Male Count:", sickMale); // Debugging
       } else {
         nonSickMale++;
-        console.log("Non-Sick Male Count:", nonSickMale); // Debugging
       }
     } else if (entry.Sex === 'female') {
       if (isSick) {
         sickFemale++;
-        console.log("Sick Female Count:", sickFemale); // Debugging
       } else {
         nonSickFemale++;
-        console.log("Non-Sick Female Count:", nonSickFemale); // Debugging
       }
     }
   });
 
   const total = sickMale + sickFemale + nonSickMale + nonSickFemale;
 
-  // Log total counts for verification
-  console.log("Total Counts:", { sickMale, sickFemale, nonSickMale, nonSickFemale, total });
-
   // If there is no data, return an empty array to prevent errors
   if (total === 0) return [];
 
   return [
     { name: 'Sick Male', value: (sickMale / total) * 100 },
-    { name: 'Sick Female', value: (sickFemale / total) * 100 },
     { name: 'Non-Sick Male', value: (nonSickMale / total) * 100 },
+    { name: 'Sick Female', value: (sickFemale / total) * 100 },
     { name: 'Non-Sick Female', value: (nonSickFemale / total) * 100 },
   ].filter((entry) => entry.value > 0); 
 };
@@ -104,8 +117,8 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
 
 const Dashboard: React.FC = () => {
   const [healthData, setHealthData] = useState<HealthDataEntry[]>([]);
-  const [selectedSymptomsLeft, setSelectedSymptomsLeft] = useState<string>('covid');
-  const [selectedSymptomsRight, setSelectedSymptomsRight] = useState<string>('cold');
+  const [selectedSymptomsLeft, setSelectedSymptomsLeft] = useState<SymptomKey>('covid');
+  const [selectedSymptomsRight, setSelectedSymptomsRight] = useState<SymptomKey>('cold');
   const [dataCount, setdataCount] = useState(0);
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
@@ -115,7 +128,7 @@ const Dashboard: React.FC = () => {
   const genderSicknessData = processGenderSicknessData(healthData);
   console.log("gender data:",genderSicknessData); // Debugging: Check if data is processed correctly
 
-  const COLORS = ['#FF6B6B', '#4ECDC4', '#1A535C', '#FFE66D']; // Colors for each category
+  const COLORS = ['#FF6B6B', '#4ECDC4', '#1A535C', '#B565A7'];
 
   // Aggregate data for age and gender
   // const ageCounts = healthData.reduce((acc, entry) => {
@@ -220,14 +233,14 @@ const Dashboard: React.FC = () => {
   //   setSelectedSymptomsRight(options);
   // }, []);
 
-  const handleSymptomSelectLeft = useCallback((symptom: string) => {
+  const handleSymptomSelectLeft = useCallback((symptom: SymptomKey) => {
     setSelectedSymptomsLeft(symptom); // Single-select
     // setSelectedSymptomsLeft((prev) =>
     //   prev.includes(symptom) ? prev.filter((s) => s !== symptom) : [...prev, symptom]
     // );
   }, []);
 
-  const handleSymptomSelectRight = useCallback((symptom: string) => {
+  const handleSymptomSelectRight = useCallback((symptom: SymptomKey) => {
     setSelectedSymptomsRight(symptom); // Single-select
     // setSelectedSymptomsRight((prev) =>
     //   prev.includes(symptom) ? prev.filter((s) => s !== symptom) : [...prev, symptom]
@@ -244,17 +257,19 @@ const Dashboard: React.FC = () => {
             lon={55.2708}
             zoom={10}
             points={healthData
-              .filter((entry) =>
-                selectedSymptomsLeft === "All" ||
-                entry.Symptoms.includes(selectedSymptomsLeft)
-              )
+              .filter((entry) => {
+                if (selectedSymptomsLeft === "All") {
+                  return !entry.Symptoms.includes("none"); // Include all entries without 'none'
+                }
+                return entry.Symptoms.includes(selectedSymptomsLeft);
+              })
               .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 10 }))
             }
           />
           <SelectionContainer>
-            <label style={{fontSize:'14px', marginBottom:'10px'}}>Select Symptoms:</label>
+            <label style={{fontSize:'14px', marginBottom:'10px'}}>Symptoms:</label>
             <SelectDropdown>
-              {symptoms.map((symptom) => (
+              {symptomKeys.map((symptom: SymptomKey) => (
                 <DropdownOption
                   key={symptom}
                   onClick={() => handleSymptomSelectLeft(symptom)}
@@ -263,8 +278,8 @@ const Dashboard: React.FC = () => {
                     color: selectedSymptomsLeft.includes(symptom) ? '#007bff' : 'black',
                   }}
                 >
-                  {symptom}
-                </DropdownOption>
+                  {symptoms[symptom]} {/* Display friendly name */}
+                  </DropdownOption>
               ))}
             </SelectDropdown>
           </SelectionContainer>
@@ -275,17 +290,19 @@ const Dashboard: React.FC = () => {
             lon={55.2708}
             zoom={10}
             points={healthData
-              .filter((entry) =>
-                selectedSymptomsRight === "All" ||
-                entry.Symptoms.includes(selectedSymptomsRight)
-              )
+              .filter((entry) => {
+                if (selectedSymptomsLeft === "All") {
+                  return !entry.Symptoms.includes("none"); // Include all entries without 'none'
+                }
+                return entry.Symptoms.includes(selectedSymptomsLeft);
+              })
               .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 10 }))
             }
             />
           <SelectionContainer>
-            <label style={{fontSize:'14px', marginBottom:'10px'}}>Select Symptoms:</label>
+            <label style={{fontSize:'14px', marginBottom:'10px'}}>Symptoms:</label>
             <SelectDropdown>
-              {symptoms.map((symptom) => (
+              {symptomKeys.map((symptom: SymptomKey) => (
                 <DropdownOption
                   key={symptom}
                   onClick={() => handleSymptomSelectRight(symptom)}
@@ -294,8 +311,8 @@ const Dashboard: React.FC = () => {
                     color: selectedSymptomsRight.includes(symptom) ? '#007bff' : 'black',
                   }}
                 >
-                  {symptom}
-                </DropdownOption>
+                  {symptoms[symptom]} {/* Display friendly name */}
+                  </DropdownOption>
               ))}
             </SelectDropdown>
           </SelectionContainer>
@@ -304,7 +321,8 @@ const Dashboard: React.FC = () => {
       <BottomCardsContainer>
         <BottomCard>Number of data: {dataCount}</BottomCard>
         <BottomCard>
-          <ResponsiveContainer width="100%" height="100%">
+          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>Age</div>
+          <ResponsiveContainer width="100%" height="93%">
             <BarChart data={sicknessData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="ageGroup" />
@@ -317,26 +335,27 @@ const Dashboard: React.FC = () => {
           </ResponsiveContainer>
         </BottomCard>
         <BottomCard>
+          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>Gender</div>
           <ResponsiveContainer width="100%" height="100%">
-              <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
-                <Pie
-                  data={genderSicknessData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="70%"
-                  fill="#8884d8"
-                  label={({ name, percent }) => `${name}: ${(100*percent).toFixed(0)}%`}
-                >
-                  {genderSicknessData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+            <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}> {/* Adds margin for label space */}
+              <Pie
+                data={testAge}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius="100%" // Increased outer radius for more padding
+                fill="#8884d8"
+                labelLine={false} // Optional: Remove label lines if they crowd the chart
+              >
+                {testAge.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </BottomCard>
       </BottomCardsContainer>
     </DashboardContainer>
