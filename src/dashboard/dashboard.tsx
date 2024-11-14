@@ -13,6 +13,7 @@ import {
 // import SicknessStatsChart from './SicknessStatsChart';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { PieChart, Pie, Cell } from 'recharts';
+import DistanceMetricChart from './DistanceMetricChart';
 
 interface HealthDataEntry {
   AgeGroup: string;            // Example: "Adult"
@@ -22,6 +23,10 @@ interface HealthDataEntry {
   DistanceMetric: number;      // Example: 12.34 (in km or miles, as appropriate)
   Symptoms: string[];          // Example: ["cold", "covid", ...]
 }
+
+const mean = 0.8;
+const stdDev = 0.4;
+// const distanceMetric = [0.5, 0.4, 0.7, 1.1, 1.4];
 
 type SymptomKey = 'All' | 'heavysmoker' | 'cold' | 'influenza' | 'covid' | 'sars' | 'rsv';
 
@@ -114,36 +119,19 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
   ].filter((entry) => entry.value > 0); 
 };
 
-
 const Dashboard: React.FC = () => {
   const [healthData, setHealthData] = useState<HealthDataEntry[]>([]);
   const [selectedSymptomsLeft, setSelectedSymptomsLeft] = useState<SymptomKey>('covid');
   const [selectedSymptomsRight, setSelectedSymptomsRight] = useState<SymptomKey>('cold');
-  const [dataCount, setdataCount] = useState(0);
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
   const retryStartTime = useRef<number | null>(null);
 
   const sicknessData = processSicknessData(healthData);
   const genderSicknessData = processGenderSicknessData(healthData);
-  console.log("gender data:",genderSicknessData); // Debugging: Check if data is processed correctly
+  const distanceMetrics = healthData.map(entry => entry.DistanceMetric);
 
   const COLORS = ['#FF6B6B', '#4ECDC4', '#1A535C', '#B565A7'];
-
-  // Aggregate data for age and gender
-  // const ageCounts = healthData.reduce((acc, entry) => {
-  //   acc[entry.AgeGroup] = (acc[entry.AgeGroup] || 0) + 1;
-  //   return acc;
-  // }, {} as Record<string, number>);
-
-  // const genderCounts = healthData.reduce((acc, entry) => {
-  //   acc[entry.Sex] = (acc[entry.Sex] || 0) + 1;
-  //   return acc;
-  // }, {} as Record<string, number>);
-
-  // Transform data into arrays compatible with Recharts
-  // const ageData = Object.entries(ageCounts).map(([label, value]) => ({ label, value }));
-  // const genderData = Object.entries(genderCounts).map(([label, value]) => ({ label, value }));
 
   const connectWebSocket = useCallback(() => {
     const websocketURL = process.env.REACT_APP_WEBSOCKET_URL || '';
@@ -218,33 +206,16 @@ const Dashboard: React.FC = () => {
   }, [connectWebSocket]);
 
   useEffect(() => {
-    console.log("gender data:",genderSicknessData); // Debugging: Check if data is processed correctly
+    console.log("gender data:",genderSicknessData);
     console.log('Number of Data:', healthData.length);
-    setdataCount(healthData.length);
   },[healthData, genderSicknessData]);
 
-  // const handleLeftSymptomChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const options = Array.from(e.target.selectedOptions, (option) => option.value);
-  //   setSelectedSymptomsLeft(options);
-  // }, []);
-  
-  // const handleRightSymptomChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const options = Array.from(e.target.selectedOptions, (option) => option.value);
-  //   setSelectedSymptomsRight(options);
-  // }, []);
-
   const handleSymptomSelectLeft = useCallback((symptom: SymptomKey) => {
-    setSelectedSymptomsLeft(symptom); // Single-select
-    // setSelectedSymptomsLeft((prev) =>
-    //   prev.includes(symptom) ? prev.filter((s) => s !== symptom) : [...prev, symptom]
-    // );
+    setSelectedSymptomsLeft(symptom);
   }, []);
 
   const handleSymptomSelectRight = useCallback((symptom: SymptomKey) => {
-    setSelectedSymptomsRight(symptom); // Single-select
-    // setSelectedSymptomsRight((prev) =>
-    //   prev.includes(symptom) ? prev.filter((s) => s !== symptom) : [...prev, symptom]
-    // );
+    setSelectedSymptomsRight(symptom);
   }, []);
 
   return (
@@ -319,7 +290,10 @@ const Dashboard: React.FC = () => {
         </HeatmapCard>
       </HeatmapContainer>
       <BottomCardsContainer>
-        <BottomCard>Number of data: {dataCount}</BottomCard>
+        <BottomCard>
+          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>Cough Statistics</div>
+          <DistanceMetricChart mean={mean} stdDev={stdDev} distanceMetrics={distanceMetrics} />
+        </BottomCard>
         <BottomCard>
           <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>Age</div>
           <ResponsiveContainer width="100%" height="93%">
