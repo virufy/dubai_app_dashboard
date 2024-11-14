@@ -46,10 +46,10 @@ const symptomKeys = Object.keys(symptoms) as SymptomKey[];
 
 const ageGroupLabels = ['<20', '30-40', '50-60', '60-80', '80+'];
 
-const testAge = [{ name: 'Sick Male', value: 0.25 * 100 },
-{ name: 'Non-Sick Male', value: 0.20 * 100 },
-{ name: 'Sick Female', value: 0.50 * 100 },
-{ name: 'Non-Sick Female', value: 0.05 * 100 }]
+// const testAge = [{ name: 'Sick Male', value: 0.25 * 100 },
+// { name: 'Non-Sick Male', value: 0.20 * 100 },
+// { name: 'Sick Female', value: 0.50 * 100 },
+// { name: 'Non-Sick Female', value: 0.05 * 100 }]
 
 const categorizeAgeGroup = (age: number): string => {
   if (age < 20) return '<20';
@@ -205,11 +205,6 @@ const Dashboard: React.FC = () => {
     };
   }, [connectWebSocket]);
 
-  useEffect(() => {
-    console.log("gender data:",genderSicknessData);
-    console.log('Number of Data:', healthData.length);
-  },[healthData, genderSicknessData]);
-
   const handleSymptomSelectLeft = useCallback((symptom: SymptomKey) => {
     setSelectedSymptomsLeft(symptom);
   }, []);
@@ -309,7 +304,7 @@ const Dashboard: React.FC = () => {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}> {/* Adds margin for label space */}
               <Pie
-                data={testAge}
+                data={genderSicknessData}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
@@ -318,7 +313,7 @@ const Dashboard: React.FC = () => {
                 fill="#8884d8"
                 labelLine={false} // Optional: Remove label lines if they crowd the chart
               >
-                {testAge.map((entry, index) => (
+                {genderSicknessData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
