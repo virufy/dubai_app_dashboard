@@ -5,7 +5,7 @@ export const VirufyLogoPNG = styled.img.attrs({
   src: virufyLogo
 })`
   display: block;
-  margin: 0px auto 30px; /* Center horizontally and add spacing below */
+  margin: 0px auto 15px; /* Center horizontally and add spacing below */
   min-height:60px;
   height: 6vh;
   padding-top: 10px; /* Add padding above the logo */
