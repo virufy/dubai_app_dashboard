@@ -8,7 +8,7 @@ import {
   BottomCard,
   VirufyLogoPNG,  
   SelectionContainer,
-  SelectDropdown, DropdownOption 
+  SelectDropdown, DropdownOption, QRCode, HeaderContainer
 } from './DashboardStyles';
 // import SicknessStatsChart from './SicknessStatsChart';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from 'recharts';
@@ -219,7 +219,10 @@ const Dashboard: React.FC = () => {
 
   return (
     <DashboardContainer>
-      <VirufyLogoPNG/>
+      <HeaderContainer>
+        <VirufyLogoPNG/>
+        <QRCode/>
+      </HeaderContainer>
       <HeatmapContainer>
         <HeatmapCard>
           <MapComponent

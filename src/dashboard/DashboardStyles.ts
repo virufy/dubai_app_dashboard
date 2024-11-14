@@ -1,22 +1,35 @@
 import styled from 'styled-components';
 import virufyLogo from '../virufyLogo.png';
+import qrCode from '../qrcode.png';
+
+// Flex container for logo and QR code
+export const HeaderContainer = styled.div`
+  display: flex;
+  align-items: center; /* Vertically align items */
+  justify-content: space-between; /* Space between logo and QR code */
+  width: 98%;
+`;
+
+export const QRCode = styled.img.attrs({
+  src: qrCode
+})`
+  margin-left: auto;
+  min-height: 140px;
+  height: 9vh;
+`;
 
 export const VirufyLogoPNG = styled.img.attrs({
   src: virufyLogo
 })`
   display: block;
-  margin: 0px auto 15px; /* Center horizontally and add spacing below */
+  margin-left: auto;
   min-height:60px;
   height: 6vh;
-  padding-top: 10px; /* Add padding above the logo */
 `;
 
 export const DashboardContainer = styled.div`
   width: 90vw; /* 90% of the viewport width */
-  height: 95vh; /* 90% of the viewport height */
-  margin: auto;
-  padding: 20px;
-  // border: 4px solid black; /* 4px black border */
+  height: 97vh; /* 90% of the viewport height */
   border-radius: 12px;
   background-color: #ffffff; /* White background for the Dashboard container */
   display: flex;
