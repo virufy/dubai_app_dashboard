@@ -24,8 +24,11 @@ interface HealthDataEntry {
   Symptoms: string[];          // Example: ["cold", "covid", ...]
 }
 
-const mean = 6.026709714020622;
-const stdDev = 2.170383376216376;
+// const mean = 6.026709714020622;
+// const stdDev = 2.170383376216376;
+
+const mean = 2.170383376216376;
+const stdDev = 2;
 
 // const distanceMetric = [0.5, 0.4, 0.7, 1.1, 1.4];
 
