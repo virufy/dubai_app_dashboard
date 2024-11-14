@@ -258,10 +258,10 @@ const Dashboard: React.FC = () => {
             zoom={10}
             points={healthData
               .filter((entry) => {
-                if (selectedSymptomsLeft === "All") {
+                if (selectedSymptomsRight === "All") {
                   return !entry.Symptoms.includes("none"); // Include all entries without 'none'
                 }
-                return entry.Symptoms.includes(selectedSymptomsLeft);
+                return entry.Symptoms.includes(selectedSymptomsRight);
               })
               .map((entry) => ({ lat: entry.latitude, lng: entry.longitude, intensity: 10 }))
             }
