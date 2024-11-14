@@ -291,10 +291,6 @@ const Dashboard: React.FC = () => {
       </HeatmapContainer>
       <BottomCardsContainer>
         <BottomCard>
-          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>Cough Statistics</div>
-          <DistanceMetricChart mean={mean} stdDev={stdDev} distanceMetrics={distanceMetrics} />
-        </BottomCard>
-        <BottomCard>
           <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>Age</div>
           <ResponsiveContainer width="100%" height="93%">
             <BarChart data={sicknessData}>
@@ -330,6 +326,10 @@ const Dashboard: React.FC = () => {
               <Legend />
             </PieChart>
           </ResponsiveContainer>
+        </BottomCard>
+        <BottomCard>
+          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>Cough Statistics</div>
+          <DistanceMetricChart mean={mean} stdDev={stdDev} distanceMetrics={distanceMetrics} />
         </BottomCard>
       </BottomCardsContainer>
     </DashboardContainer>
