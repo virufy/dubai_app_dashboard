@@ -97,7 +97,7 @@ export const BottomCardsContainer = styled.div`
     width: 90vw;
   }
   @media (max-height: 800px) {
-    height: 300px;
+    height: 250px;
   }
 `;
 
@@ -111,7 +111,7 @@ export const BottomCard = styled.div`
   text-align: center;
   @media (max-width: 768px) {
     width: calc(100% - 30px + 10px);
-    min-height: 250px;
+    min-height: 220px;
   }
 `;
 
