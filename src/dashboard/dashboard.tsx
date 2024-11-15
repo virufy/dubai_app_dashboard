@@ -16,12 +16,12 @@ import { PieChart, Pie, Cell } from 'recharts';
 import DistanceMetricChart from './DistanceMetricChart';
 
 interface HealthDataEntry {
-  AgeGroup: string;            // Example: "Adult"
-  longitude: number;           // Example: -122.4194
-  latitude: number;            // Example: 37.7749
-  Sex: string;                 // Example: "Male" or "Female"
-  DistanceMetric: number;      // Example: 12.34 (in km or miles, as appropriate)
-  Symptoms: string[];          // Example: ["cold", "covid", ...]
+  AgeGroup: string;      
+  longitude: number;     
+  latitude: number;      
+  Sex: string;           
+  DistanceMetric: number;
+  Symptoms: string[];    
 }
 
 // const mean = 6.026709714020622;
@@ -70,14 +70,16 @@ const processSicknessData = (healthData: HealthDataEntry[]) => {
   }, {} as Record<string, { sick: number; notSick: number }>);
 
   healthData.forEach((entry) => {
-    const ageGroup = categorizeAgeGroup(parseInt(entry.AgeGroup, 10));
-    const isSick = entry.Symptoms && !entry.Symptoms.includes('none');
-    
-    if (ageGroupCounts[ageGroup]) {
-      if (isSick) {
-        ageGroupCounts[ageGroup].sick += 1;
-      } else {
-        ageGroupCounts[ageGroup].notSick += 1;
+    if (entry.AgeGroup && !isNaN(parseInt(entry.AgeGroup, 10))) {
+      const ageGroup = categorizeAgeGroup(parseInt(entry.AgeGroup, 10));
+      const isSick = entry.Symptoms && !entry.Symptoms.includes('none');
+      
+      if (ageGroupCounts[ageGroup]) {
+        if (isSick) {
+          ageGroupCounts[ageGroup].sick += 1;
+        } else {
+          ageGroupCounts[ageGroup].notSick += 1;
+        }
       }
     }
   });
