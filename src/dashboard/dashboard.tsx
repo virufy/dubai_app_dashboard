@@ -36,13 +36,13 @@ type SymptomKey = 'All' | 'heavysmoker' | 'cold' | 'influenza' | 'covid' | 'sars
 
 // Define symptoms with the specific type
 const symptoms: Record<SymptomKey, string> = {
-  All: 'All',
-  heavysmoker: 'Heavy Smoker',
-  cold: 'Cold',
-  influenza: 'Influenza',
-  covid: 'Covid',
-  sars: 'SARS',
-  rsv: 'RSV',
+  All: 'All 🔴',
+  heavysmoker: 'Heavy Smoker 🚬',
+  cold: 'Cold 🤒',
+  influenza: 'Influenza 😷',
+  covid: 'COVID 🤧',
+  sars: 'SARS 🦠',
+  rsv: 'RSV 🏥',
 };
 
 // Extract keys for internal use
