@@ -132,6 +132,8 @@ const Dashboard: React.FC = () => {
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
   const retryStartTime = useRef<number | null>(null);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+  const updateScreenSize = () => setIsDesktop(window.innerWidth > 768);
 
   const sicknessData = processSicknessData(healthData);
   const genderSicknessData = processGenderSicknessData(healthData);
@@ -170,23 +172,23 @@ const Dashboard: React.FC = () => {
       console.log('WebSocket connection closed unexpectedly');
       console.log(`Code: ${event.code}, Reason: ${event.reason}`);
 
-      // Retry logic with exponential backoff
-      if (retryStartTime.current === null) {
-        retryStartTime.current = Date.now();
-      }
+      // // Retry logic with exponential backoff
+      // if (retryStartTime.current === null) {
+      //   retryStartTime.current = Date.now();
+      // }
 
-      const elapsedTime = Date.now() - retryStartTime.current;
-      const maxRetryDuration = 60000;
+      // const elapsedTime = Date.now() - retryStartTime.current;
+      // const maxRetryDuration = 60000;
 
-      if (elapsedTime < maxRetryDuration) {
-        reconnectAttempts.current += 1;
-        const delay = Math.min(10000, (2 ** reconnectAttempts.current) * 1000);
-        setTimeout(() => {
-          connectWebSocket();
-        }, delay);
-      } else {
-        console.error('Max retry duration reached. WebSocket connection could not be re-established.');
-      }
+      // if (elapsedTime < maxRetryDuration) {
+      //   reconnectAttempts.current += 1;
+      //   const delay = Math.min(10000, (2 ** reconnectAttempts.current) * 1000);
+      //   setTimeout(() => {
+      //     connectWebSocket();
+      //   }, delay);
+      // } else {
+      //   console.error('Max retry duration reached. WebSocket connection could not be re-established.');
+      // }
     };
 
     ws.current.onerror = (error) => {
@@ -219,11 +221,22 @@ const Dashboard: React.FC = () => {
     setSelectedSymptomsRight(symptom);
   }, []);
 
+  useEffect(() => {
+    window.addEventListener('resize', updateScreenSize);
+    return () => window.removeEventListener('resize', updateScreenSize);
+  }, []);
+
+
   return (
     <DashboardContainer>
       <HeaderContainer>
-        <VirufyLogoPNG/>
-        <QRCode/>
+
+          <a href="https://virufy.org/en/" target="_blank" rel="noopener noreferrer">
+            <VirufyLogoPNG />
+          </a>
+        <a href="https://main.d2m8rxm7onxcwh.amplifyapp.com/" target="_blank" rel="noopener noreferrer">
+          <QRCode />
+        </a>
       </HeaderContainer>
       <HeatmapContainer>
         <HeatmapCard>
@@ -259,7 +272,7 @@ const Dashboard: React.FC = () => {
             </SelectDropdown>
           </SelectionContainer>
         </HeatmapCard>
-        <HeatmapCard>
+        {isDesktop && <HeatmapCard>
           <MapComponent
             lat={25.2048}
             lon={55.2708}
@@ -291,7 +304,7 @@ const Dashboard: React.FC = () => {
               ))}
             </SelectDropdown>
           </SelectionContainer>
-        </HeatmapCard>
+        </HeatmapCard>}
       </HeatmapContainer>
       <BottomCardsContainer>
         <BottomCard>

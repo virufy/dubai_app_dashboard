@@ -29,6 +29,18 @@ const MapComponent: React.FC<MapProps> = React.memo(({ lat, lon, zoom, points })
         attribution: '© OpenStreetMap contributors',
       }).addTo(mapRef.current);
     }
+    // Handle window resize to prevent errors
+    const handleResize = () => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, [lat, lon, zoom]);
 
   useEffect(() => {
