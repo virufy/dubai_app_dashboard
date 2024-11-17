@@ -233,7 +233,7 @@ const Dashboard: React.FC = () => {
       const { name, value } = payload[0];
       const percentage = value.toFixed(2);
       return (
-        <div className="custom-tooltip">
+        <div style={{ backgroundColor: 'white', border: '1px solid #ccc', padding: '5px' }}>
           <p>{`${name}: ${percentage}%`}</p>
         </div>
       );
