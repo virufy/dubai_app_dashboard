@@ -48,7 +48,7 @@ const symptoms: Record<SymptomKey, string> = {
 // Extract keys for internal use
 const symptomKeys = Object.keys(symptoms) as SymptomKey[];
 
-const ageGroupLabels = ['<20', '30-40', '50-60', '60-80', '80+'];
+const ageGroupLabels = ['<20', '20-30', '30-40', '40-50', '50-60', '60-80', '80+'];
 
 // const testAge = [{ name: 'Sick Male', value: 0.25 * 100 },
 // { name: 'Non-Sick Male', value: 0.20 * 100 },
@@ -57,7 +57,9 @@ const ageGroupLabels = ['<20', '30-40', '50-60', '60-80', '80+'];
 
 const categorizeAgeGroup = (age: number): string => {
   if (age < 20) return '<20';
+  if (age >= 20 && age < 30) return '20-30';
   if (age >= 30 && age < 40) return '30-40';
+  if (age >= 40 && age < 50) return '40-50';
   if (age >= 50 && age < 60) return '50-60';
   if (age >= 60 && age < 80) return '60-80';
   return '80+';
@@ -226,6 +228,19 @@ const Dashboard: React.FC = () => {
     return () => window.removeEventListener('resize', updateScreenSize);
   }, []);
 
+  const CustomTooltip = ({ payload, label, active }: any) => {
+    if (active && payload && payload.length) {
+      const { name, value } = payload[0];
+      const percentage = value.toFixed(2);
+      return (
+        <div className="custom-tooltip">
+          <p>{`${name}: ${percentage}%`}</p>
+        </div>
+      );
+    }
+  
+    return null;
+  };
 
   return (
     <DashboardContainer>
@@ -339,7 +354,7 @@ const Dashboard: React.FC = () => {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
