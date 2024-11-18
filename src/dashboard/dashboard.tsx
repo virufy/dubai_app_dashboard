@@ -178,16 +178,24 @@ const processGenderSicknessData = (healthData: HealthDataEntry[]) => {
 
   const total = sickMale + sickFemale + nonSickMale + nonSickFemale;
 
-  // If there is no data, return an empty array to prevent errors
-  if (total === 0) return [];
+  // Return default structure with 0 values if no data is available
+  if (total === 0) {
+    return [
+      { name: 'Sick Male', value: 0 },
+      { name: 'Non-Sick Male', value: 0 },
+      { name: 'Sick Female', value: 0 },
+      { name: 'Non-Sick Female', value: 0 },
+    ];
+  }
 
   return [
     { name: 'Sick Male', value: (sickMale / total) * 100 },
     { name: 'Non-Sick Male', value: (nonSickMale / total) * 100 },
     { name: 'Sick Female', value: (sickFemale / total) * 100 },
     { name: 'Non-Sick Female', value: (nonSickFemale / total) * 100 },
-  ].filter((entry) => entry.value > 0); 
+  ];
 };
+
 
 const Dashboard: React.FC = () => {
   const [healthData, setHealthData] = useState<HealthDataEntry[]>([]);
@@ -296,21 +304,21 @@ const Dashboard: React.FC = () => {
     console.log(`Language changed to: ${language}`);
   }, []);
 
-  const CustomTooltip = ({ payload, label, active }: any) => {
-    if (active && payload && payload.length) {
-      const { name, value } = payload[0];
-      const percentage = value.toFixed(2);
-      return (
-        <div style={{ backgroundColor: 'white', border: '1px solid #ccc', padding: '5px' }}>
-          <p>{`${name}: ${percentage}%`}</p>
-        </div>
-      );
-    }
+  // const CustomTooltip = ({ payload, label, active }: any) => {
+  //   if (active && payload && payload.length) {
+  //     const { name, value } = payload[0];
+  //     const percentage = value.toFixed(2);
+  //     return (
+  //       <div style={{ backgroundColor: 'white', border: '1px solid #ccc', padding: '5px' }}>
+  //         <p>{`${name}: ${percentage}%`}</p>
+  //       </div>
+  //     );
+  //   }
   
-    return null;
-  };
+  //   return null;
+  // };
 
-  const CustomTooltip_bar = ({ payload, label, active }: any) => {
+  const CustomTooltipBar = ({ payload, label, active }: any) => {
     if (active && payload && payload.length) {
       return (
         <div
@@ -344,7 +352,7 @@ const Dashboard: React.FC = () => {
     return null;
   };
 
-  const CustomTooltip_pie = ({ payload, active }: any, selectedLanguage: 'en' | 'ar') => {
+  const CustomTooltipPie = ({ payload, active }: any, selectedLanguage: 'en' | 'ar') => {
     if (active && payload && payload.length) {
       const { name, value, percent } = payload[0];
       const localizedName =
@@ -490,7 +498,7 @@ const Dashboard: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="ageGroup" />
               <YAxis />
-              <Tooltip content={<CustomTooltip_bar />} />
+              <Tooltip content={<CustomTooltipBar />} />
               <Legend
                 formatter={(value) =>
                   value === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick
@@ -531,7 +539,7 @@ const Dashboard: React.FC = () => {
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip content={<CustomTooltip_pie selectedLanguage={selectedLanguage} />} />
+          <Tooltip content={<CustomTooltipPie selectedLanguage={selectedLanguage} />} />
           <Legend
             formatter={(value) => {
               return value === "Sick Male"
