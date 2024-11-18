@@ -32,7 +32,7 @@ export const VirufyLogoPNG = styled.img.attrs({
   src: virufyLogo
 })`
   min-height: 45px;
-  height: 4vh;
+  height: 6vh;
 `;
 
 export const DashboardContainer = styled.div`
