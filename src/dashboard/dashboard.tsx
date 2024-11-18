@@ -207,6 +207,9 @@ const Dashboard: React.FC = () => {
   const retryStartTime = useRef<number | null>(null);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
   const updateScreenSize = () => setIsDesktop(window.innerWidth > 768);
+    
+  const t = translations[selectedLanguage];
+  const tg = genderTranslations[selectedLanguage];
 
   const sicknessData = processSicknessData(healthData);
   const genderSicknessData = processGenderSicknessData(healthData) || [
@@ -363,12 +366,12 @@ const Dashboard: React.FC = () => {
       const { name, value, percent } = payload[0];
       const localizedName =
         name === "Sick Male"
-          ? genderTranslations[selectedLanguage].sickMale
+          ? tg.sickMale
           : name === "Non-Sick Male"
-          ? genderTranslations[selectedLanguage].nonSickMale
+          ? tg.nonSickMale
           : name === "Sick Female"
-          ? genderTranslations[selectedLanguage].sickFemale
-          : genderTranslations[selectedLanguage].nonSickFemale;
+          ? tg.sickFemale
+          : tg.nonSickFemale;
   
       return (
         <div
@@ -389,8 +392,6 @@ const Dashboard: React.FC = () => {
   };
   
   
-  
-  const t = translations[selectedLanguage];
 
   return (
     <DashboardContainer>
@@ -527,19 +528,19 @@ const Dashboard: React.FC = () => {
             outerRadius="100%"
             fill="#8884d8"
             labelLine={false} // Removes connecting lines to labels
-            label={({ name, percent }) => {
-              const localizedName =
-                name === "Sick Male"
-                  ? genderTranslations[selectedLanguage].sickMale
-                  : name === "Non-Sick Male"
-                  ? genderTranslations[selectedLanguage].nonSickMale
-                  : name === "Sick Female"
-                  ? genderTranslations[selectedLanguage].sickFemale
-                  : genderTranslations[selectedLanguage].nonSickFemale;
+            // label={({ name, percent }) => {
+            //   const localizedName =
+            //     name === "Sick Male"
+            //       ? genderTranslations[selectedLanguage].sickMale
+            //       : name === "Non-Sick Male"
+            //       ? genderTranslations[selectedLanguage].nonSickMale
+            //       : name === "Sick Female"
+            //       ? genderTranslations[selectedLanguage].sickFemale
+            //       : genderTranslations[selectedLanguage].nonSickFemale;
 
-              // Return simple formatted labels
-              return `${localizedName}: ${(percent * 100).toFixed(1)}%`;
-            }}
+            //   // Return simple formatted labels
+            //   return `${localizedName}: ${(percent * 100).toFixed(1)}%`;
+            // }}
           >
             {genderSicknessData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
