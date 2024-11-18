@@ -24,6 +24,46 @@ interface HealthDataEntry {
   Symptoms: string[];    
 }
 
+const translations = {
+  en: {
+    languageLabel: "Language:",
+    symptomsLabel: "Symptoms:",
+    ageTitle: "Age",
+    genderTitle: "Gender",
+    coughStatsTitle: "Cough Statistics",
+    chartKeys: {
+      sick: "Sick",
+      notSick: "NotSick",
+    },
+  },
+  ar: {
+    languageLabel: "اللغة:",
+    symptomsLabel: "الأعراض:",
+    ageTitle: "العمر",
+    genderTitle: "الجنس",
+    coughStatsTitle: "إحصائيات السعال",
+    chartKeys: {
+      sick: "مريض",
+      notSick: "غير مريض",
+    },
+  },
+};
+
+const genderTranslations = {
+  en: {
+    sickMale: "Sick Male",
+    nonSickMale: "Non-Sick Male",
+    sickFemale: "Sick Female",
+    nonSickFemale: "Non-Sick Female",
+  },
+  ar: {
+    sickMale: "ذكر مريض",
+    nonSickMale: "ذكر غير مريض",
+    sickFemale: "أنثى مريضة",
+    nonSickFemale: "أنثى غير مريضة",
+  },
+};
+
 // const mean = 6.026709714020622;
 // const stdDev = 2.170383376216376;
 
@@ -47,6 +87,28 @@ const symptoms: Record<SymptomKey, string> = {
 
 // Extract keys for internal use
 const symptomKeys = Object.keys(symptoms) as SymptomKey[];
+
+const symptomsTranslations: Record<'en' | 'ar', Record<SymptomKey, string>> = {
+  en: {
+    All: 'All 🔴',
+    heavysmoker: 'Heavy Smoker 🚬',
+    cold: 'Cold 🤒',
+    influenza: 'Influenza 😷',
+    covid: 'COVID 🤧',
+    sars: 'SARS 🦠',
+    rsv: 'RSV 🏥',
+  },
+  ar: {
+    All: 'الكل 🔴',
+    heavysmoker: 'مدخن ثقيل 🚬',
+    cold: 'برد 🤒',
+    influenza: 'إنفلونزا 😷',
+    covid: 'كوفيد 🤧',
+    sars: 'سارس 🦠',
+    rsv: 'الفيروس المخلوي التنفسي 🏥',
+  },
+};
+
 
 const ageGroupLabels = ['<20', '20-30', '30-40', '40-50', '50-60', '60-80', '80+'];
 
@@ -132,6 +194,7 @@ const Dashboard: React.FC = () => {
   const [selectedSymptomsLeft, setSelectedSymptomsLeft] = useState<SymptomKey>('covid');
   const [selectedSymptomsRight, setSelectedSymptomsRight] = useState<SymptomKey>('cold');
   const ws = useRef<WebSocket | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'ar'>('en');
   const reconnectAttempts = useRef(0);
   const retryStartTime = useRef<number | null>(null);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
@@ -227,6 +290,11 @@ const Dashboard: React.FC = () => {
     window.addEventListener('resize', updateScreenSize);
     return () => window.removeEventListener('resize', updateScreenSize);
   }, []);
+  
+  const handleLanguageChange = useCallback((language: 'en' | 'ar') => {
+    setSelectedLanguage(language);
+    console.log(`Language changed to: ${language}`);
+  }, []);
 
   const CustomTooltip = ({ payload, label, active }: any) => {
     if (active && payload && payload.length) {
@@ -242,16 +310,109 @@ const Dashboard: React.FC = () => {
     return null;
   };
 
+  const CustomTooltip_bar = ({ payload, label, active }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div
+          style={{
+            backgroundColor: "white",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            padding: "10px",
+            boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
+          }}
+        >
+          <p style={{ margin: 0, fontWeight: "bold" }}>{label}</p>
+          {payload.map((entry: any, index: number) => {
+            const localizedName =
+              entry.name === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick;
+            return (
+              <p
+                key={index}
+                style={{
+                  margin: "5px 0",
+                  color: entry.color, // Use the color of the bar
+                }}
+              >
+                {`${localizedName}: ${entry.value}`}
+              </p>
+            );
+          })}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const CustomTooltip_pie = ({ payload, active }: any, selectedLanguage: 'en' | 'ar') => {
+    if (active && payload && payload.length) {
+      const { name, value, percent } = payload[0];
+      const localizedName =
+        name === "Sick Male"
+          ? genderTranslations[selectedLanguage].sickMale
+          : name === "Non-Sick Male"
+          ? genderTranslations[selectedLanguage].nonSickMale
+          : name === "Sick Female"
+          ? genderTranslations[selectedLanguage].sickFemale
+          : genderTranslations[selectedLanguage].nonSickFemale;
+  
+      return (
+        <div
+          style={{
+            backgroundColor: "white",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            padding: "10px",
+            boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
+          }}
+        >
+          <p style={{ margin: 0, fontWeight: "bold" }}>
+            {`${localizedName}: ${(percent * 100).toFixed(2)}%`}
+          </p>
+          <p style={{ margin: 0 }}>{`Count: ${value}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+  
+  
+  const t = translations[selectedLanguage];
+
   return (
     <DashboardContainer>
       <HeaderContainer>
-
+        <SelectionContainer style={{width: '60px', left:'0', position: 'absolute'}}>
+            <label style={{ fontSize: '14px', marginBottom: '4px' }}>{t.languageLabel}</label>
+            <SelectDropdown style={{  padding: '4px'}}>
+              <DropdownOption
+                key="en"
+                onClick={() => handleLanguageChange('en')}
+                style={{
+                  fontWeight: selectedLanguage === 'en' ? 'bold' : 'normal',
+                  color: selectedLanguage === 'en' ? '#007bff' : 'black',
+                }}
+              >
+                English
+              </DropdownOption>
+              <DropdownOption
+                key="ar"
+                onClick={() => handleLanguageChange('ar')}
+                style={{
+                  fontWeight: selectedLanguage === 'ar' ? 'bold' : 'normal',
+                  color: selectedLanguage === 'ar' ? '#007bff' : 'black',
+                }}
+              >
+                Arabic
+              </DropdownOption>
+            </SelectDropdown>
+          </SelectionContainer>
           <a href="https://virufy.org/en/" target="_blank" rel="noopener noreferrer">
             <VirufyLogoPNG />
           </a>
-        <a href="https://main.d2m8rxm7onxcwh.amplifyapp.com/" target="_blank" rel="noopener noreferrer">
-          <QRCode />
-        </a>
+          <a href="https://main.d2m8rxm7onxcwh.amplifyapp.com/" target="_blank" rel="noopener noreferrer">
+            <QRCode />
+          </a>
       </HeaderContainer>
       <HeatmapContainer>
         <HeatmapCard>
@@ -270,7 +431,7 @@ const Dashboard: React.FC = () => {
             }
           />
           <SelectionContainer>
-            <label style={{fontSize:'14px', marginBottom:'10px'}}>Symptoms:</label>
+            <label style={{fontSize:'14px', marginBottom:'10px'}}>{t.symptomsLabel}</label>
             <SelectDropdown>
               {symptomKeys.map((symptom: SymptomKey) => (
                 <DropdownOption
@@ -281,7 +442,7 @@ const Dashboard: React.FC = () => {
                     color: selectedSymptomsLeft.includes(symptom) ? '#007bff' : 'black',
                   }}
                 >
-                  {symptoms[symptom]} {/* Display friendly name */}
+                  {symptomsTranslations[selectedLanguage][symptom]}
                   </DropdownOption>
               ))}
             </SelectDropdown>
@@ -303,7 +464,7 @@ const Dashboard: React.FC = () => {
             }
             />
           <SelectionContainer>
-            <label style={{fontSize:'14px', marginBottom:'10px'}}>Symptoms:</label>
+            <label style={{fontSize:'14px', marginBottom:'10px'}}>{t.symptomsLabel}</label>
             <SelectDropdown>
               {symptomKeys.map((symptom: SymptomKey) => (
                 <DropdownOption
@@ -314,7 +475,7 @@ const Dashboard: React.FC = () => {
                     color: selectedSymptomsRight.includes(symptom) ? '#007bff' : 'black',
                   }}
                 >
-                  {symptoms[symptom]} {/* Display friendly name */}
+                  {symptomsTranslations[selectedLanguage][symptom]}
                   </DropdownOption>
               ))}
             </SelectDropdown>
@@ -323,45 +484,71 @@ const Dashboard: React.FC = () => {
       </HeatmapContainer>
       <BottomCardsContainer>
         <BottomCard>
-          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>Age</div>
+          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>{t.ageTitle}</div>
           <ResponsiveContainer width="100%" height="93%">
             <BarChart data={sicknessData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="ageGroup" />
               <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Sick" fill="#FF6B6B" />
-              <Bar dataKey="NotSick" fill="#4ECDC4" />
+              <Tooltip content={<CustomTooltip_bar />} />
+              <Legend
+                formatter={(value) =>
+                  value === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick
+                }
+              />
+              <Bar dataKey="Sick" name={t.chartKeys.sick} fill="#FF6B6B" />
+              <Bar dataKey="NotSick" name={t.chartKeys.notSick} fill="#4ECDC4" />
             </BarChart>
           </ResponsiveContainer>
         </BottomCard>
         <BottomCard>
-          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>Gender</div>
+          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>{t.genderTitle}</div>
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}> {/* Adds margin for label space */}
-              <Pie
-                data={genderSicknessData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius="100%" // Increased outer radius for more padding
-                fill="#8884d8"
-                labelLine={false} // Optional: Remove label lines if they crowd the chart
-              >
-                {genderSicknessData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-            </PieChart>
+          <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}> {/* Adds margin for label space */}
+          <Pie
+            data={genderSicknessData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius="100%" // Increased outer radius for more padding
+            fill="#8884d8"
+            labelLine={false} // Optional: Remove label lines if they crowd the chart
+            label={({ name, percent }) => {
+              const localizedName =
+                name === "Sick Male"
+                  ? genderTranslations[selectedLanguage].sickMale
+                  : name === "Non-Sick Male"
+                  ? genderTranslations[selectedLanguage].nonSickMale
+                  : name === "Sick Female"
+                  ? genderTranslations[selectedLanguage].sickFemale
+                  : genderTranslations[selectedLanguage].nonSickFemale;
+
+              return `${localizedName}: ${(percent * 100).toFixed(2)}%`;
+            }}
+          >
+            {genderSicknessData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip content={<CustomTooltip_pie selectedLanguage={selectedLanguage} />} />
+          <Legend
+            formatter={(value) => {
+              return value === "Sick Male"
+                ? genderTranslations[selectedLanguage].sickMale
+                : value === "Non-Sick Male"
+                ? genderTranslations[selectedLanguage].nonSickMale
+                : value === "Sick Female"
+                ? genderTranslations[selectedLanguage].sickFemale
+                : genderTranslations[selectedLanguage].nonSickFemale;
+            }}
+          />
+        </PieChart>
           </ResponsiveContainer>
         </BottomCard>
         <BottomCard>
-          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>Cough Statistics</div>
-          <DistanceMetricChart mean={mean} stdDev={stdDev} distanceMetrics={distanceMetrics} />
+          <div style={{marginLeft:'auto', marginRight:'auto', marginBottom:"10px", height:"5%", fontSize:'100%'}}>{t.coughStatsTitle}</div>
+          <DistanceMetricChart mean={mean} stdDev={stdDev} distanceMetrics={distanceMetrics} language={selectedLanguage} />
         </BottomCard>
       </BottomCardsContainer>
     </DashboardContainer>
