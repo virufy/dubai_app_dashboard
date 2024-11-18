@@ -209,7 +209,13 @@ const Dashboard: React.FC = () => {
   const updateScreenSize = () => setIsDesktop(window.innerWidth > 768);
 
   const sicknessData = processSicknessData(healthData);
-  const genderSicknessData = processGenderSicknessData(healthData);
+  const genderSicknessData = processGenderSicknessData(healthData) || [
+    { name: 'Sick Male', value: 0 },
+    { name: 'Non-Sick Male', value: 0 },
+    { name: 'Sick Female', value: 0 },
+    { name: 'Non-Sick Female', value: 0 },
+  ];
+  
   const distanceMetrics = healthData.map(entry => entry.DistanceMetric);
 
   const COLORS = ['#FF6B6B', '#4ECDC4', '#1A535C', '#B565A7'];
@@ -352,7 +358,7 @@ const Dashboard: React.FC = () => {
     return null;
   };
 
-  const CustomTooltipPie = ({ payload, active }: any, selectedLanguage: 'en' | 'ar') => {
+  const CustomTooltipPie = ({ payload, active }: any) => {
     if (active && payload && payload.length) {
       const { name, value, percent } = payload[0];
       const localizedName =
@@ -374,15 +380,14 @@ const Dashboard: React.FC = () => {
             boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
           }}
         >
-          <p style={{ margin: 0, fontWeight: "bold" }}>
-            {`${localizedName}: ${(percent * 100).toFixed(2)}%`}
-          </p>
+          <p style={{ margin: 0, fontWeight: "bold" }}>{`${localizedName}: ${(percent * 100).toFixed(2)}%`}</p>
           <p style={{ margin: 0 }}>{`Count: ${value}`}</p>
         </div>
       );
     }
     return null;
   };
+  
   
   
   const t = translations[selectedLanguage];
@@ -519,9 +524,9 @@ const Dashboard: React.FC = () => {
             nameKey="name"
             cx="50%"
             cy="50%"
-            outerRadius="100%" // Increased outer radius for more padding
+            outerRadius="100%"
             fill="#8884d8"
-            labelLine={false} // Optional: Remove label lines if they crowd the chart
+            labelLine={false} // Removes connecting lines to labels
             label={({ name, percent }) => {
               const localizedName =
                 name === "Sick Male"
@@ -532,13 +537,15 @@ const Dashboard: React.FC = () => {
                   ? genderTranslations[selectedLanguage].sickFemale
                   : genderTranslations[selectedLanguage].nonSickFemale;
 
-              return `${localizedName}: ${(percent * 100).toFixed(2)}%`;
+              // Return simple formatted labels
+              return `${localizedName}: ${(percent * 100).toFixed(1)}%`;
             }}
           >
             {genderSicknessData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
+
           <Tooltip content={<CustomTooltipPie selectedLanguage={selectedLanguage} />} />
           <Legend
             formatter={(value) => {
