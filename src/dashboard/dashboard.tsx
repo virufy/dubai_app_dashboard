@@ -372,7 +372,8 @@ const Dashboard: React.FC = () => {
           : name === "Sick Female"
           ? tg.sickFemale
           : tg.nonSickFemale;
-  
+      const isRTL = selectedLanguage === 'ar';
+
       return (
         <div
           style={{
@@ -381,9 +382,11 @@ const Dashboard: React.FC = () => {
             borderRadius: "5px",
             padding: "10px",
             boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
+            textAlign: isRTL ? "right" : "left", // Align text based on language
+            direction: isRTL ? "rtl" : "ltr",   // Set text direction for RTL languages
           }}
         >
-          <p style={{ margin: 0, fontWeight: "bold" }}>{`${localizedName}: ${value.toFixed(2)}%`}</p>
+          <p style={{ margin: 0 }}>{`${localizedName}: ${value.toFixed(2)}%`}</p>
         </div>
       );
     }
