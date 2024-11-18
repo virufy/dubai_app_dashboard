@@ -31,7 +31,7 @@ export const QRCode = styled.img.attrs({
 export const VirufyLogoPNG = styled.img.attrs({
   src: virufyLogo
 })`
-  min-height: 60px;
+  min-height: 40px;
   height: 4vh;
 `;
 
