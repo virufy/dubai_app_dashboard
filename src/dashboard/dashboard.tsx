@@ -383,8 +383,7 @@ const Dashboard: React.FC = () => {
             boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
           }}
         >
-          <p style={{ margin: 0, fontWeight: "bold" }}>{`${localizedName}: ${(percent * 100).toFixed(2)}%`}</p>
-          <p style={{ margin: 0 }}>{`Count: ${value}`}</p>
+          <p style={{ margin: 0, fontWeight: "bold" }}>{`${localizedName}: ${value.toFixed(2)}%`}</p>
         </div>
       );
     }
