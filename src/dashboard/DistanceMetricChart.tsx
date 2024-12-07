@@ -5,7 +5,7 @@ interface DistanceMetricChartProps {
   mean: number;
   stdDev: number;
   distanceMetrics: number[];
-  language: 'en' | 'ar'; // Add language prop
+  language: 'en' | 'ar' | 'ja'; // Add language prop
 }
 
 const translations = {
@@ -20,6 +20,12 @@ const translations = {
     probabilityDensity: "كثافة الاحتمال",
     tooltipDistance: "مقياس المسافة",
     tooltipProbability: "الاحتمال",
+  },
+  ja: {
+    distanceMetric: "距離メトリック",
+    probabilityDensity: "確率密度",
+    tooltipDistance: "距離メトリック",
+    tooltipProbability: "確率",
   },
 };
 
@@ -46,7 +52,7 @@ const generateColor = (index: number, total: number) => {
 
 const CustomTooltip = ({ active, payload, label, language }: any) => {
   if (active && payload && payload.length) {
-    const t = translations[language as 'en' | 'ar']; // Use type assertion
+    const t = translations[language as 'en' | 'ar' | 'ja']; // Use type assertion
     const bellCurveValue = payload.find((entry: any) => entry.name === "Probability");
     return (
       <div style={{ backgroundColor: 'white', border: '1px solid #ccc', padding: '5px' }}>

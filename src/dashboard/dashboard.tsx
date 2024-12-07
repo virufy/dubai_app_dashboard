@@ -10,7 +10,7 @@ import {
   SelectionContainer,
   SelectDropdown, DropdownOption, QRCode, HeaderContainer
 } from './DashboardStyles';
-// import SicknessStatsChart from './SicknessStatsChart';
+
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { PieChart, Pie, Cell } from 'recharts';
 import DistanceMetricChart from './DistanceMetricChart';
@@ -47,6 +47,17 @@ const translations = {
       notSick: "غير مريض",
     },
   },
+  ja: {
+    languageLabel: "言語:",
+    symptomsLabel: "症状:",
+    ageTitle: "年齢",
+    genderTitle: "性別",
+    coughStatsTitle: "咳の統計",
+    chartKeys: {
+      sick: "病気",
+      notSick: "健康",
+    },
+  },
 };
 
 const genderTranslations = {
@@ -62,6 +73,12 @@ const genderTranslations = {
     sickFemale: "أنثى مريضة",
     nonSickFemale: "أنثى غير مريضة",
   },
+  ja: {
+    sickMale: "病気の男性",
+    nonSickMale: "健康な男性",
+    sickFemale: "病気の女性",
+    nonSickFemale: "健康な女性",
+  },
 };
 
 // const mean = 6.026709714020622;
@@ -70,11 +87,8 @@ const genderTranslations = {
 const mean = 2.170383376216376;
 const stdDev = 2;
 
-// const distanceMetric = [0.5, 0.4, 0.7, 1.1, 1.4];
-
 type SymptomKey = 'All' | 'heavysmoker' | 'cold' | 'influenza' | 'covid' | 'sars' | 'rsv';
 
-// Define symptoms with the specific type
 const symptoms: Record<SymptomKey, string> = {
   All: 'All 🔴',
   heavysmoker: 'Heavy Smoker 🚬',
@@ -88,7 +102,7 @@ const symptoms: Record<SymptomKey, string> = {
 // Extract keys for internal use
 const symptomKeys = Object.keys(symptoms) as SymptomKey[];
 
-const symptomsTranslations: Record<'en' | 'ar', Record<SymptomKey, string>> = {
+const symptomsTranslations: Record<'en' | 'ar' | 'ja', Record<SymptomKey, string>> = {
   en: {
     All: 'All 🔴',
     heavysmoker: 'Heavy Smoker 🚬',
@@ -107,15 +121,19 @@ const symptomsTranslations: Record<'en' | 'ar', Record<SymptomKey, string>> = {
     sars: 'سارس 🦠',
     rsv: 'الفيروس المخلوي التنفسي 🏥',
   },
+  ja: {
+    All: "すべて 🔴",
+    heavysmoker: "ヘビースモーカー 🚬",
+    cold: "風邪 🤒",
+    influenza: "インフルエンザ 😷",
+    covid: "COVID 🤧",
+    sars: "SARS 🦠",
+    rsv: "RSV 🏥",
+  },
 };
 
 
 const ageGroupLabels = ['<20', '20-30', '30-40', '40-50', '50-60', '60-80', '80+'];
-
-// const testAge = [{ name: 'Sick Male', value: 0.25 * 100 },
-// { name: 'Non-Sick Male', value: 0.20 * 100 },
-// { name: 'Sick Female', value: 0.50 * 100 },
-// { name: 'Non-Sick Female', value: 0.05 * 100 }]
 
 const categorizeAgeGroup = (age: number): string => {
   if (age < 20) return '<20';
@@ -202,7 +220,7 @@ const Dashboard: React.FC = () => {
   const [selectedSymptomsLeft, setSelectedSymptomsLeft] = useState<SymptomKey>('covid');
   const [selectedSymptomsRight, setSelectedSymptomsRight] = useState<SymptomKey>('cold');
   const ws = useRef<WebSocket | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'ar'>('en');
+  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'ar' | 'ja'>('en');
   const reconnectAttempts = useRef(0);
   const retryStartTime = useRef<number | null>(null);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
@@ -253,24 +271,6 @@ const Dashboard: React.FC = () => {
     ws.current.onclose = (event) => {
       console.log('WebSocket connection closed unexpectedly');
       console.log(`Code: ${event.code}, Reason: ${event.reason}`);
-
-      // // Retry logic with exponential backoff
-      // if (retryStartTime.current === null) {
-      //   retryStartTime.current = Date.now();
-      // }
-
-      // const elapsedTime = Date.now() - retryStartTime.current;
-      // const maxRetryDuration = 60000;
-
-      // if (elapsedTime < maxRetryDuration) {
-      //   reconnectAttempts.current += 1;
-      //   const delay = Math.min(10000, (2 ** reconnectAttempts.current) * 1000);
-      //   setTimeout(() => {
-      //     connectWebSocket();
-      //   }, delay);
-      // } else {
-      //   console.error('Max retry duration reached. WebSocket connection could not be re-established.');
-      // }
     };
 
     ws.current.onerror = (error) => {
@@ -308,24 +308,10 @@ const Dashboard: React.FC = () => {
     return () => window.removeEventListener('resize', updateScreenSize);
   }, []);
   
-  const handleLanguageChange = useCallback((language: 'en' | 'ar') => {
+  const handleLanguageChange = useCallback((language: 'en' | 'ar' | 'ja') => {
     setSelectedLanguage(language);
     console.log(`Language changed to: ${language}`);
   }, []);
-
-  // const CustomTooltip = ({ payload, label, active }: any) => {
-  //   if (active && payload && payload.length) {
-  //     const { name, value } = payload[0];
-  //     const percentage = value.toFixed(2);
-  //     return (
-  //       <div style={{ backgroundColor: 'white', border: '1px solid #ccc', padding: '5px' }}>
-  //         <p>{`${name}: ${percentage}%`}</p>
-  //       </div>
-  //     );
-  //   }
-  
-  //   return null;
-  // };
 
   const CustomTooltipBar = ({ payload, label, active }: any) => {
     if (active && payload && payload.length) {
@@ -363,7 +349,7 @@ const Dashboard: React.FC = () => {
 
   const CustomTooltipPie = ({ payload, active }: any) => {
     if (active && payload && payload.length) {
-      const { name, value, percent } = payload[0];
+      const { name, value } = payload[0];
       const localizedName =
         name === "Sick Male"
           ? tg.sickMale
@@ -412,6 +398,16 @@ const Dashboard: React.FC = () => {
                 English
               </DropdownOption>
               <DropdownOption
+                key="ja"
+                onClick={() => handleLanguageChange("ja")}
+                style={{
+                  fontWeight: selectedLanguage === "ja" ? "bold" : "normal",
+                  color: selectedLanguage === "ja" ? "#007bff" : "black",
+                }}
+              >
+                Japanese
+              </DropdownOption>
+              <DropdownOption
                 key="ar"
                 onClick={() => handleLanguageChange('ar')}
                 style={{
@@ -426,7 +422,7 @@ const Dashboard: React.FC = () => {
           <a href="https://virufy.org/en/" target="_blank" rel="noopener noreferrer">
             <VirufyLogoPNG />
           </a>
-          <a href="https://main.d2m8rxm7onxcwh.amplifyapp.com/" target="_blank" rel="noopener noreferrer">
+          <a href="/dubai-app" target="_blank" rel="noopener noreferrer">
             <QRCode />
           </a>
       </HeaderContainer>
@@ -529,20 +525,7 @@ const Dashboard: React.FC = () => {
             cy="50%"
             outerRadius="100%"
             fill="#8884d8"
-            labelLine={false} // Removes connecting lines to labels
-            // label={({ name, percent }) => {
-            //   const localizedName =
-            //     name === "Sick Male"
-            //       ? genderTranslations[selectedLanguage].sickMale
-            //       : name === "Non-Sick Male"
-            //       ? genderTranslations[selectedLanguage].nonSickMale
-            //       : name === "Sick Female"
-            //       ? genderTranslations[selectedLanguage].sickFemale
-            //       : genderTranslations[selectedLanguage].nonSickFemale;
-
-            //   // Return simple formatted labels
-            //   return `${localizedName}: ${(percent * 100).toFixed(1)}%`;
-            // }}
+            labelLine={false}
           >
             {genderSicknessData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
