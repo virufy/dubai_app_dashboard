@@ -383,16 +383,17 @@ const Dashboard: React.FC = () => {
 
   return (
     <DashboardContainer>
-      <HeaderContainer>
-        <SelectionContainer style={{width: '60px', left:'0', position: 'absolute'}}>
-            <label style={{ fontSize: '14px', marginBottom: '4px' }}>{t.languageLabel}</label>
-            <SelectDropdown style={{  padding: '4px'}}>
+      <HeaderContainer style={{marginBottom: '4px'}}>
+        <SelectionContainer style={{width: '60px', left:'0', position: 'absolute', paddingLeft: '0px'}}>
+            <label style={{ fontSize: '14px', marginBottom: '4px', paddingTop: '10px', }}>{t.languageLabel}</label>
+            <SelectDropdown style={{  padding: '4px', height: '100%', position: 'relative'}}>
               <DropdownOption
                 key="en"
                 onClick={() => handleLanguageChange('en')}
                 style={{
                   fontWeight: selectedLanguage === 'en' ? 'bold' : 'normal',
                   color: selectedLanguage === 'en' ? '#007bff' : 'black',
+                  padding: '2px'
                 }}
               >
                 English
@@ -403,6 +404,7 @@ const Dashboard: React.FC = () => {
                 style={{
                   fontWeight: selectedLanguage === "ja" ? "bold" : "normal",
                   color: selectedLanguage === "ja" ? "#007bff" : "black",
+                  padding: '2px'
                 }}
               >
                 Japanese
@@ -413,6 +415,7 @@ const Dashboard: React.FC = () => {
                 style={{
                   fontWeight: selectedLanguage === 'ar' ? 'bold' : 'normal',
                   color: selectedLanguage === 'ar' ? '#007bff' : 'black',
+                  padding: '2px'
                 }}
               >
                 Arabic

@@ -11,7 +11,7 @@ export const HeaderContainer = styled.div`
   align-items: center;
   justify-content: center;
   width: 98%;
-  padding: 0;
+  padding: 12px;
   position: relative;
   height: 12vh;
 `;
