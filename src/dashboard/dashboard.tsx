@@ -91,7 +91,7 @@ type SymptomKey = 'All' | 'heavysmoker' | 'cold' | 'influenza' | 'covid' | 'sars
 
 const symptoms: Record<SymptomKey, string> = {
   All: 'All 🔴',
-  heavysmoker: 'Heavy Smoker 🚬',
+  heavysmoker: 'Smoker 🚬',
   cold: 'Cold 🤒',
   influenza: 'Influenza 😷',
   covid: 'COVID 🤧',
@@ -105,7 +105,7 @@ const symptomKeys = Object.keys(symptoms) as SymptomKey[];
 const symptomsTranslations: Record<'en' | 'ar' | 'ja', Record<SymptomKey, string>> = {
   en: {
     All: 'All 🔴',
-    heavysmoker: 'Heavy Smoker 🚬',
+    heavysmoker: 'Smoker 🚬',
     cold: 'Cold 🤒',
     influenza: 'Influenza 😷',
     covid: 'COVID 🤧',
@@ -425,7 +425,7 @@ const Dashboard: React.FC = () => {
           <a href="https://virufy.org/en/" target="_blank" rel="noopener noreferrer">
             <VirufyLogoPNG />
           </a>
-          <a href="/dubai-app" target="_blank" rel="noopener noreferrer">
+          <a href="https://virufy.org/en/" target="_blank" rel="noopener noreferrer">
             <QRCode />
           </a>
       </HeaderContainer>
