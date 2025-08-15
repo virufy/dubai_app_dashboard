@@ -149,10 +149,16 @@ export const SelectDropdown = styled.div`
 `;
 
 export const DropdownOption = styled.div`
-  padding: 5px 0;
+  //padding: 5px 0;
   display: flex;
   align-items: center;
   cursor: pointer;
+  //this is the new code for the formatting and alignment no overflow
+  padding: 4px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
 
   &:hover {
     background-color: #e0e0e0;

@@ -91,7 +91,7 @@ type SymptomKey = 'All' | 'heavysmoker' | 'cold' | 'influenza' | 'covid' | 'sars
 
 const symptoms: Record<SymptomKey, string> = {
   All: 'All 🔴',
-  heavysmoker: 'Heavy Smoker 🚬',
+  heavysmoker: 'Smoker 🚬',
   cold: 'Cold 🤒',
   influenza: 'Influenza 😷',
   covid: 'COVID 🤧',
@@ -105,7 +105,7 @@ const symptomKeys = Object.keys(symptoms) as SymptomKey[];
 const symptomsTranslations: Record<'en' | 'ar' | 'ja', Record<SymptomKey, string>> = {
   en: {
     All: 'All 🔴',
-    heavysmoker: 'Heavy Smoker 🚬',
+    heavysmoker: 'Smoker 🚬',
     cold: 'Cold 🤒',
     influenza: 'Influenza 😷',
     covid: 'COVID 🤧',
@@ -328,7 +328,7 @@ const Dashboard: React.FC = () => {
           <p style={{ margin: 0, fontWeight: "bold" }}>{label}</p>
           {payload.map((entry: any, index: number) => {
             const localizedName =
-              entry.name === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick;
+              entry.dataKey === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick;
             return (
               <p
                 key={index}
@@ -425,7 +425,7 @@ const Dashboard: React.FC = () => {
           <a href="https://virufy.org/en/" target="_blank" rel="noopener noreferrer">
             <VirufyLogoPNG />
           </a>
-          <a href="/dubai-app" target="_blank" rel="noopener noreferrer">
+          <a href="https://virufy.org/en/" target="_blank" rel="noopener noreferrer">
             <QRCode />
           </a>
       </HeaderContainer>
@@ -507,8 +507,8 @@ const Dashboard: React.FC = () => {
               <YAxis />
               <Tooltip content={<CustomTooltipBar />} />
               <Legend
-                formatter={(value) =>
-                  value === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick
+                formatter={(value, entry: any) =>
+                  entry?.dataKey === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick
                 }
               />
               <Bar dataKey="Sick" name={t.chartKeys.sick} fill="#FF6B6B" />
