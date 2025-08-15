@@ -328,7 +328,7 @@ const Dashboard: React.FC = () => {
           <p style={{ margin: 0, fontWeight: "bold" }}>{label}</p>
           {payload.map((entry: any, index: number) => {
             const localizedName =
-              entry.name === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick;
+              entry.dataKey === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick;
             return (
               <p
                 key={index}
@@ -507,8 +507,8 @@ const Dashboard: React.FC = () => {
               <YAxis />
               <Tooltip content={<CustomTooltipBar />} />
               <Legend
-                formatter={(value) =>
-                  value === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick
+                formatter={(value, entry: any) =>
+                  entry?.dataKey === "Sick" ? t.chartKeys.sick : t.chartKeys.notSick
                 }
               />
               <Bar dataKey="Sick" name={t.chartKeys.sick} fill="#FF6B6B" />
