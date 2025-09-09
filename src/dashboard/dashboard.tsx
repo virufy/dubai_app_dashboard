@@ -87,15 +87,15 @@ const genderTranslations = {
 const mean = 2.170383376216376;
 const stdDev = 2;
 
-type SymptomKey = 'All' | 'heavysmoker' | 'cold' | 'influenza' | 'covid' | 'sars' | 'rsv';
+type SymptomKey = 'All' | 'heavysmoker' | 'cold' | 'flu' | 'covid' | 'Asthma' | 'rsv';
 
 const symptoms: Record<SymptomKey, string> = {
   All: 'All 🔴',
   heavysmoker: 'Smoker 🚬',
   cold: 'Cold 🤒',
-  influenza: 'Influenza 😷',
+  flu: 'flu 😷',
   covid: 'COVID 🤧',
-  sars: 'SARS 🦠',
+  Asthma: 'Asthma 🦠',
   rsv: 'RSV 🏥',
 };
 
@@ -107,27 +107,27 @@ const symptomsTranslations: Record<'en' | 'ar' | 'ja', Record<SymptomKey, string
     All: 'All 🔴',
     heavysmoker: 'Smoker 🚬',
     cold: 'Cold 🤒',
-    influenza: 'Influenza 😷',
+    flu: 'flu 😷',
     covid: 'COVID 🤧',
-    sars: 'SARS 🦠',
+    Asthma: 'Asthma 🦠',
     rsv: 'RSV 🏥',
   },
   ar: {
     All: 'الكل 🔴',
     heavysmoker: 'مدخن ثقيل 🚬',
     cold: 'برد 🤒',
-    influenza: 'إنفلونزا 😷',
+    flu: 'إنفلونزا 😷',
     covid: 'كوفيد 🤧',
-    sars: 'سارس 🦠',
+    Asthma: 'الربو 🦠',
     rsv: 'الفيروس المخلوي التنفسي 🏥',
   },
   ja: {
     All: "すべて 🔴",
     heavysmoker: "ヘビースモーカー 🚬",
     cold: "風邪 🤒",
-    influenza: "インフルエンザ 😷",
+    flu: "インフルエンザ 😷",
     covid: "COVID 🤧",
-    sars: "SARS 🦠",
+    Asthma: "Asthma 🦠",
     rsv: "RSV 🏥",
   },
 };
